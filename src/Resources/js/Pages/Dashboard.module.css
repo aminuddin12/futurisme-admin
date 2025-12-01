@@ -1,0 +1,58 @@
+/* Grid Container untuk Kartu Statistik */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem; /* gap-6 */
+}
+
+/* Responsif: Tablet ke atas 2 kolom, Desktop 4 kolom */
+@media (min-width: 768px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (min-width: 1024px) {
+    .statsGrid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Card Style */
+.card {
+    background-color: white;
+    overflow: hidden;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 1.5rem; /* p-6 */
+    border-left: 4px solid transparent;
+}
+
+/* Warna Border Unik per Card (opsional) */
+.cardPrimary { border-left-color: #6366f1; }
+.cardSuccess { border-left-color: #10b981; }
+.cardWarning { border-left-color: #f59e0b; }
+.cardDanger  { border-left-color: #ef4444; }
+
+.cardTitle {
+    color: #6b7280; /* text-gray-500 */
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cardValue {
+    margin-top: 0.5rem;
+    font-size: 1.875rem; /* text-3xl */
+    font-weight: 600;
+    color: #111827; /* text-gray-900 */
+}
+
+/* Section Baru */
+.sectionContainer {
+    margin-top: 2rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}

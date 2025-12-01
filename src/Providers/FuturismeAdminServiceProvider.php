@@ -3,8 +3,8 @@
 namespace Aminuddin12\FuturismeAdmin\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Route;
 use Aminuddin12\FuturismeAdmin\Console\Commands\InstallFuturismeAdmin;
+use Illuminate\Support\Facades\Config;
 
 class FuturismeAdminServiceProvider extends ServiceProvider
 {
@@ -16,20 +16,38 @@ class FuturismeAdminServiceProvider extends ServiceProvider
         // 2. Load Views (Namespace: futurisme)
         $this->loadViewsFrom(__DIR__.'/../../src/Resources/views', 'futurisme');
 
-        // 3. Load Migrations (tanpa harus publish)
+        // 3. Load Migrations
         $this->loadMigrationsFrom(__DIR__.'/../../src/Database/Migrations');
 
-        // 4. Register Command
+        // 4. Konfigurasi Auth Guard & Provider Secara Dinamis
+        // Ini agar user tidak perlu edit config/auth.php manual
+        $this->configureAuth();
+
+        // 5. Register Command & Publishing
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InstallFuturismeAdmin::class,
             ]);
 
-            // Setup Publishable Assets (CSS/JS yang sudah dibuild)
             $this->publishes([
                 __DIR__.'/../../public/vendor/futurisme-admin' => public_path('vendor/futurisme-admin'),
             ], 'futurisme-assets');
         }
+    }
+
+    protected function configureAuth()
+    {
+        // Menambahkan Provider untuk Model FuturismeAdmin
+        Config::set('auth.providers.futurisme_admins', [
+            'driver' => 'eloquent',
+            'model' => \Aminuddin12\FuturismeAdmin\Models\FuturismeAdmin::class,
+        ]);
+
+        // Menambahkan Guard 'futurisme'
+        Config::set('auth.guards.futurisme', [
+            'driver' => 'session',
+            'provider' => 'futurisme_admins',
+        ]);
     }
 
     public function register()

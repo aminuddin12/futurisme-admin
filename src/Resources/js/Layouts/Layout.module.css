@@ -1,0 +1,77 @@
+/* Layout Container: Flexbox row untuk Sidebar + Content */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f3f4f6; /* gray-100 */
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 16rem; /* w-64 */
+    background-color: #1f2937; /* gray-800 */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.3s;
+}
+
+.brand {
+    height: 4rem; /* h-16 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem; /* text-xl */
+    font-weight: bold;
+    border-bottom: 1px solid #374151; /* gray-700 */
+}
+
+.navLink {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem; /* px-6 py-3 */
+    color: #d1d5db; /* gray-300 */
+    transition: background-color 0.2s, color 0.2s;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500;
+}
+
+.navLink:hover, .navLinkActive {
+    background-color: #111827; /* gray-900 */
+    color: white;
+    border-left: 3px solid #6366f1; /* indigo-500 */
+}
+
+/* Main Content Area */
+.mainContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Top Header */
+.header {
+    height: 4rem; /* h-16 */
+    background-color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem; /* px-8 */
+}
+
+.logoutBtn {
+    color: #ef4444; /* red-500 */
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.logoutBtn:hover {
+    text-decoration: underline;
+}
+
+.contentBody {
+    padding: 2rem; /* p-8 */
+    overflow-y: auto;
+}
