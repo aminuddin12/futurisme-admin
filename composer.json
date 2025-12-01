@@ -1,0 +1,32 @@
+{
+    "name": "aminuddin12/futurisme-admin",
+    "description": "Futurisme Admin Panel for Laravel 12",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aminuddin",
+            "email": "email@example.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "inertiajs/inertia-laravel": "^1.0|^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aminuddin12\\FuturismeAdmin\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Aminuddin12\\FuturismeAdmin\\Providers\\FuturismeAdminServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

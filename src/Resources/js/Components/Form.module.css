@@ -1,0 +1,39 @@
+/* Input Text Field Modern */
+.input {
+    @apply fa-border-gray-300 fa-text-gray-900 fa-rounded-lg fa-shadow-sm;
+    @apply fa-w-full fa-transition-all fa-duration-200;
+    @apply focus:fa-border-indigo-500 focus:fa-ring-indigo-500;
+    /* Sedikit padding extra agar lega */
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+/* Label yang lebih tegas */
+.label {
+    @apply fa-block fa-font-medium fa-text-sm fa-text-gray-700 fa-mb-1;
+}
+
+/* Primary Button dengan Gradient halus */
+.btnPrimary {
+    @apply fa-inline-flex fa-items-center fa-justify-center;
+    @apply fa-px-4 fa-py-3 fa-w-full;
+    @apply fa-bg-indigo-600 fa-border fa-border-transparent fa-rounded-lg;
+    @apply fa-font-semibold fa-text-xs fa-text-white fa-uppercase fa-tracking-widest;
+    @apply hover:fa-bg-indigo-700 active:fa-bg-indigo-900;
+    @apply focus:fa-outline-none focus:fa-ring-2 focus:fa-ring-indigo-500 focus:fa-ring-offset-2;
+    @apply fa-transition fa-ease-in-out fa-duration-150;
+    @apply fa-shadow-lg;
+}
+
+/* Pesan Error */
+.error {
+    @apply fa-text-sm fa-text-red-600 fa-mt-1 fa-animate-pulse;
+}
+
+/* Checkbox */
+.checkbox {
+    @apply fa-rounded fa-border-gray-300 fa-text-indigo-600 fa-shadow-sm;
+    @apply focus:fa-ring-indigo-500;
+    width: 1rem;
+    height: 1rem;
+}
