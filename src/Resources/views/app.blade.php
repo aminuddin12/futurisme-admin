@@ -5,28 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Futurisme Admin</title>
 
-    {{--
-      Trik: Kita me-load manifest dari public/vendor/futurisme-admin/.vite/manifest.json
-      Untuk simplifikasi di production package, kita bisa meload file entry point langsung
-      atau menggunakan helper khusus.
-    --}}
-
     @php
         $manifest = public_path('vendor/futurisme-admin/.vite/manifest.json');
-        // Logic untuk parsing manifest dan load CSS/JS file yang benar
-        // (Biasanya dibuatkan helper function di ServiceProvider)
     @endphp
 
-    {{-- Placeholder untuk contoh --}}
     <link rel="stylesheet" href="{{ asset('vendor/futurisme-admin/assets/app.css') }}">
     
-    {{-- PENTING: Directive ini diperlukan agar route config tersedia di JS --}}
-    @routes
+    {{-- PERBAIKAN: Menggunakan PHP native alih-alih directive @routes --}}
+    {{-- Ini memastikan config Ziggy tetap ter-render meskipun directive blade bermasalah --}}
+    @if (app()->bound('ziggy'))
+        <script>
+            const Ziggy = {!! json_encode(app('ziggy')->toArray()['url'] ? app('ziggy')->toArray() : []) !!};
+            if (typeof window !== 'undefined') {
+                Object.assign(window.Ziggy || {}, Ziggy);
+            }
+        </script>
+    @else
+        <script>
+            console.error('Ziggy not found. Please run: composer require tightenco/ziggy');
+        </script>
+    @endif
     
     <script type="module" src="{{ asset('vendor/futurisme-admin/assets/app.js') }}" defer></script>
     @inertiaHead
 </head>
-<body class="fa-bg-gray-100"> <!-- Menggunakan Prefix fa- -->
+<body class="fa-bg-gray-100">
     @inertia
 </body>
 </html>
