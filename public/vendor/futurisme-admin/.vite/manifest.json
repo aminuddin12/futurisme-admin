@@ -1,4 +1,22 @@
 {
+  "_Checkbox.js": {
+    "file": "assets/Checkbox.js",
+    "name": "Checkbox",
+    "imports": [
+      "src/Resources/js/app.tsx",
+      "_Login.module.js"
+    ]
+  },
+  "_Login.module.js": {
+    "file": "assets/Login.module.js",
+    "name": "Login.module",
+    "imports": [
+      "src/Resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/Login.css"
+    ]
+  },
   "src/Resources/css/app.css": {
     "file": "assets/app.css",
     "src": "src/Resources/css/app.css",
@@ -10,10 +28,11 @@
     "src": "src/Resources/js/Pages/Auth/Login.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "src/Resources/js/app.tsx"
+      "src/Resources/js/app.tsx",
+      "_Checkbox.js",
+      "_Login.module.js"
     ],
     "css": [
-      "assets/Login.css",
       "assets/app.css"
     ]
   },
@@ -30,6 +49,33 @@
       "assets/app.css"
     ]
   },
+  "src/Resources/js/Pages/Setup/AdminAccount.tsx": {
+    "file": "assets/AdminAccount.js",
+    "name": "AdminAccount",
+    "src": "src/Resources/js/Pages/Setup/AdminAccount.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/Resources/js/app.tsx",
+      "_Login.module.js"
+    ],
+    "css": [
+      "assets/app.css"
+    ]
+  },
+  "src/Resources/js/Pages/Setup/Configuration.tsx": {
+    "file": "assets/Configuration.js",
+    "name": "Configuration",
+    "src": "src/Resources/js/Pages/Setup/Configuration.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/Resources/js/app.tsx",
+      "_Login.module.js",
+      "_Checkbox.js"
+    ],
+    "css": [
+      "assets/app.css"
+    ]
+  },
   "src/Resources/js/app.tsx": {
     "file": "assets/app.js",
     "name": "app",
@@ -37,7 +83,9 @@
     "isEntry": true,
     "dynamicImports": [
       "src/Resources/js/Pages/Auth/Login.tsx",
-      "src/Resources/js/Pages/Dashboard.tsx"
+      "src/Resources/js/Pages/Dashboard.tsx",
+      "src/Resources/js/Pages/Setup/AdminAccount.tsx",
+      "src/Resources/js/Pages/Setup/Configuration.tsx"
     ],
     "css": [
       "assets/app.css"

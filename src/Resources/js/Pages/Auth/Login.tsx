@@ -1,12 +1,41 @@
 import { useEffect, FormEventHandler } from 'react';
 import { Head, useForm } from '@inertiajs/react';
-// Path relative digunakan agar kompatibel tanpa konfigurasi alias yang rumit
 import Checkbox from '../../Components/Checkbox';
 import InputError from '../../Components/InputError';
 import InputLabel from '../../Components/InputLabel';
 import PrimaryButton from '../../Components/PrimaryButton';
 import TextInput from '../../Components/TextInput';
 import styles from './Login.module.css'; 
+
+// Helper SUPER AMAN untuk route
+const safeRoute = (name: string, fallbackUrl: string): string => {
+    try {
+        // @ts-ignore
+        if (typeof window.route !== 'function' || typeof window.Ziggy === 'undefined') {
+            // Silent fallback jika environment belum siap
+            return fallbackUrl;
+        }
+
+        // @ts-ignore
+        const r: any = window.route();
+
+        if (r && typeof r.has === 'function') {
+            if (r.has(name)) {
+                // @ts-ignore
+                return window.route(name);
+            } else {
+                // PENTING: Jangan spam console error jika route memang belum ada (misal fitur dimatikan)
+                // Cukup return fallback
+                // console.warn(`[Futurisme] Route '${name}' missing. Using fallback: ${fallbackUrl}`);
+                return fallbackUrl;
+            }
+        }
+    } catch (e) {
+        // Silent fail
+    }
+
+    return fallbackUrl;
+};
 
 export default function Login({ status, canResetPassword }: { status?: string, canResetPassword?: boolean }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -23,26 +52,16 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('futurisme.login.store'));
-    };
-
-    // Helper aman untuk cek route agar tidak error crash jika Ziggy belum siap
-    const hasRoute = (name: string): boolean => {
-        try {
-            // Casting 'any' untuk menghindari error TypeScript pada property .has()
-            const r = route() as any;
-            return r?.has && r.has(name);
-        } catch (e) {
-            // Jika terjadi error internal Ziggy, anggap route tidak ada (jangan crash)
-            return false;
-        }
+        
+        // Gunakan fallback manual '/admin/login' yang pasti benar untuk form login standar
+        const url = safeRoute('futurisme.login.store', '/admin/login');
+        post(url);
     };
 
     return (
         <div className={styles.loginContainer}>
             <Head title="Admin Login" />
 
-            {/* Header Section */}
             <div className="fa-text-center fa-mb-2">
                 <div className={styles.brandContainer}>
                     <svg className="fa-w-8 fa-h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -57,7 +76,6 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                 </p>
             </div>
 
-            {/* Alert Status */}
             {status && (
                 <div className="fa-w-full fa-max-w-md fa-mb-4 fa-p-4 fa-bg-green-50 fa-border-l-4 fa-border-green-500 fa-rounded-r-md fa-shadow-sm fa-animate-bounce">
                     <div className="fa-flex">
@@ -73,7 +91,6 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                 </div>
             )}
 
-            {/* Form Card */}
             <div className={styles.loginCard}>
                 <form onSubmit={submit} className="fa-space-y-6">
                     <div>
@@ -119,8 +136,7 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
                         {canResetPassword && (
                             <a
-                                // PERBAIKAN: Gunakan helper function 'hasRoute' yang aman
-                                href={hasRoute('futurisme.password.request') ? route('futurisme.password.request') : '#'}
+                                href={safeRoute('futurisme.password.request', '#')}
                                 className="fa-text-sm fa-font-medium fa-text-indigo-600 hover:fa-text-indigo-500 fa-transition-colors"
                             >
                                 Lupa password?
@@ -146,7 +162,6 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                 </form>
             </div>
 
-            {/* Footer */}
             <div className="fa-mt-8 fa-text-center">
                 <p className="fa-text-xs fa-text-gray-400">
                     &copy; {new Date().getFullYear()} Futurisme Admin. Secured & Encrypted.

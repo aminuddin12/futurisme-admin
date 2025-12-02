@@ -1,35 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futurisme Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+    {{-- 
+        Injeksi Config Ziggy yang Aman.
+    --}}
     @php
-        $manifest = public_path('vendor/futurisme-admin/.vite/manifest.json');
+        $ziggyConfig = null;
+        try {
+            if (class_exists(\Tightenco\Ziggy\Ziggy::class)) {
+                // Instansiasi Ziggy secara manual untuk mendapatkan config terbaru
+                // Ini akan memuat rute dari Route::getRoutes() saat runtime
+                $ziggy = new \Tightenco\Ziggy\Ziggy;
+                $ziggyConfig = $ziggy->toArray();
+            }
+        } catch (\Exception $e) {
+            // Fallback kosong jika gagal total
+        }
     @endphp
 
-    <link rel="stylesheet" href="{{ asset('vendor/futurisme-admin/assets/app.css') }}">
-    
-    {{-- PERBAIKAN: Menggunakan PHP native alih-alih directive @routes --}}
-    {{-- Ini memastikan config Ziggy tetap ter-render meskipun directive blade bermasalah --}}
-    @if (app()->bound('ziggy'))
+    @if ($ziggyConfig)
         <script>
-            const Ziggy = {!! json_encode(app('ziggy')->toArray()['url'] ? app('ziggy')->toArray() : []) !!};
+            const Ziggy = <?php echo json_encode($ziggyConfig); ?>;
             if (typeof window !== 'undefined') {
                 Object.assign(window.Ziggy || {}, Ziggy);
             }
         </script>
     @else
         <script>
-            console.error('Ziggy not found. Please run: composer require tightenco/ziggy');
+            // Fallback object minimal
+            if (typeof window !== 'undefined') {
+                window.Ziggy = { url: '{{ url("/") }}', port: null, defaults: {}, routes: {} };
+            }
         </script>
     @endif
-    
+
+    <link rel="stylesheet" href="{{ asset('vendor/futurisme-admin/assets/app.css') }}">
     <script type="module" src="{{ asset('vendor/futurisme-admin/assets/app.js') }}" defer></script>
+    
     @inertiaHead
 </head>
-<body class="fa-bg-gray-100">
+<body class="fa-bg-gray-100 fa-font-sans fa-antialiased">
     @inertia
 </body>
 </html>

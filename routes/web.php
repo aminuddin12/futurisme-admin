@@ -8,31 +8,29 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Route khusus untuk paket Futurisme Admin.
-| Middleware 'web' diterapkan secara otomatis oleh ServiceProvider.
-|
 */
 
-// Middleware 'web' memastikan session & CSRF berfungsi
-Route::middleware(['web'])->prefix('futurisme-admin')->group(function () {
+// Ambil prefix dari config, default 'admin'
+$adminPrefix = config('fu-admin.url_prefix', 'admin');
 
-    // Guest Routes (Hanya untuk yang BELUM login sebagai admin)
+Route::middleware(['web'])->prefix($adminPrefix)->group(function () {
+
+    // Guest Routes (Hanya untuk yang BELUM login)
     Route::middleware('guest:futurisme')->group(function () {
         Route::get('login', [LoginController::class, 'create'])->name('futurisme.login');
         Route::post('login', [LoginController::class, 'store'])->name('futurisme.login.store');
 
-        // Placeholder untuk Lupa Password (jika nanti dibuat)
-        Route::get('forgot-password', function() { return 'TODO'; })->name('futurisme.password.request');
+        // Pastikan route ini ada dan namanya benar
+        Route::get('forgot-password', function() { 
+            return 'Fitur Lupa Password (TODO)'; 
+        })->name('futurisme.password.request');
     });
 
-    // Authenticated Routes (Hanya untuk yang SUDAH login sebagai admin)
-    Route::middleware('auth:futurisme')->group(function () {
+    // Authenticated Routes (Hanya untuk yang SUDAH login)
+    Route::middleware('futurisme.auth:futurisme')->group(function () {
         Route::post('logout', [LoginController::class, 'destroy'])->name('futurisme.logout');
 
         Route::get('/', function () {
-            // Mengarahkan ke Dashboard React
-            // PENTING: Set root view ke 'futurisme::app' agar tidak mencari 'app.blade.php' di root project
             return Inertia::render('Dashboard')->rootView('futurisme::app');
         })->name('futurisme.dashboard');
     });
