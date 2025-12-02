@@ -26,6 +26,18 @@ export default function Login({ status, canResetPassword }: { status?: string, c
         post(route('futurisme.login.store'));
     };
 
+    // Helper aman untuk cek route agar tidak error crash jika Ziggy belum siap
+    const hasRoute = (name: string): boolean => {
+        try {
+            // Casting 'any' untuk menghindari error TypeScript pada property .has()
+            const r = route() as any;
+            return r?.has && r.has(name);
+        } catch (e) {
+            // Jika terjadi error internal Ziggy, anggap route tidak ada (jangan crash)
+            return false;
+        }
+    };
+
     return (
         <div className={styles.loginContainer}>
             <Head title="Admin Login" />
@@ -107,7 +119,8 @@ export default function Login({ status, canResetPassword }: { status?: string, c
 
                         {canResetPassword && (
                             <a
-                                href={route('futurisme.password.request')}
+                                // PERBAIKAN: Gunakan helper function 'hasRoute' yang aman
+                                href={hasRoute('futurisme.password.request') ? route('futurisme.password.request') : '#'}
                                 className="fa-text-sm fa-font-medium fa-text-indigo-600 hover:fa-text-indigo-500 fa-transition-colors"
                             >
                                 Lupa password?

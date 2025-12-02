@@ -2,6 +2,13 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+// Import Ziggy agar fungsi route() tersedia
+import { route } from 'ziggy-js';
+
+// Setup Global Route Helper untuk React Components
+if (typeof window !== 'undefined') {
+    window.route = route;
+}
 
 const appName = 'Futurisme Admin';
 

@@ -2,20 +2,24 @@
 
 namespace Aminuddin12\FuturismeAdmin\Http\Controllers\Auth;
 
-use Illuminate\Routing\Controller;
+// PENTING: Kita ganti use Controller biasa dengan Base Controller kita
+use Aminuddin12\FuturismeAdmin\Http\Controllers\FuturismeBaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
 
-class LoginController extends Controller
+// Ubah extends menjadi FuturismeBaseController
+class LoginController extends FuturismeBaseController
 {
     /**
      * Tampilkan halaman login admin.
      */
     public function create()
     {
+        // KITA HAPUS ->rootView('futurisme::app') DI SINI
+        // Karena sudah ditangani otomatis oleh __construct di FuturismeBaseController
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('futurisme.password.request'),
             'status' => session('status'),

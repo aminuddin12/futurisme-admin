@@ -19,6 +19,10 @@
 
     {{-- Placeholder untuk contoh --}}
     <link rel="stylesheet" href="{{ asset('vendor/futurisme-admin/assets/app.css') }}">
+    
+    {{-- PENTING: Directive ini diperlukan agar route config tersedia di JS --}}
+    @routes
+    
     <script type="module" src="{{ asset('vendor/futurisme-admin/assets/app.js') }}" defer></script>
     @inertiaHead
 </head>

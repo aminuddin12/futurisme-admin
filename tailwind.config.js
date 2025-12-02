@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
     // Prefix penting agar class tidak bentrok dengan aplikasi utama
     // Contoh penggunaan: class="fa-bg-red-500 fa-p-4"
     prefix: 'fa-',

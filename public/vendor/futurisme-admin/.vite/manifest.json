@@ -1,0 +1,46 @@
+{
+  "src/Resources/css/app.css": {
+    "file": "assets/app.css",
+    "src": "src/Resources/css/app.css",
+    "isEntry": true
+  },
+  "src/Resources/js/Pages/Auth/Login.tsx": {
+    "file": "assets/Login.js",
+    "name": "Login",
+    "src": "src/Resources/js/Pages/Auth/Login.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/Resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/Login.css",
+      "assets/app.css"
+    ]
+  },
+  "src/Resources/js/Pages/Dashboard.tsx": {
+    "file": "assets/Dashboard.js",
+    "name": "Dashboard",
+    "src": "src/Resources/js/Pages/Dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "src/Resources/js/app.tsx"
+    ],
+    "css": [
+      "assets/Dashboard.css",
+      "assets/app.css"
+    ]
+  },
+  "src/Resources/js/app.tsx": {
+    "file": "assets/app.js",
+    "name": "app",
+    "src": "src/Resources/js/app.tsx",
+    "isEntry": true,
+    "dynamicImports": [
+      "src/Resources/js/Pages/Auth/Login.tsx",
+      "src/Resources/js/Pages/Dashboard.tsx"
+    ],
+    "css": [
+      "assets/app.css"
+    ]
+  }
+}

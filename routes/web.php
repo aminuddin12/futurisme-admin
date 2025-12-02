@@ -15,7 +15,7 @@ use Inertia\Inertia;
 */
 
 // Middleware 'web' memastikan session & CSRF berfungsi
-Route::middleware(['web'])->group(function () {
+Route::middleware(['web'])->prefix('futurisme-admin')->group(function () {
 
     // Guest Routes (Hanya untuk yang BELUM login sebagai admin)
     Route::middleware('guest:futurisme')->group(function () {
@@ -32,7 +32,8 @@ Route::middleware(['web'])->group(function () {
 
         Route::get('/', function () {
             // Mengarahkan ke Dashboard React
-            return Inertia::render('Dashboard');
+            // PENTING: Set root view ke 'futurisme::app' agar tidak mencari 'app.blade.php' di root project
+            return Inertia::render('Dashboard')->rootView('futurisme::app');
         })->name('futurisme.dashboard');
     });
 });

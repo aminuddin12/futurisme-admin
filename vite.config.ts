@@ -22,10 +22,11 @@ export default defineConfig({
         manifest: true,
         rollupOptions: {
             output: {
-                // Hashing nama file agar unik
-                entryFileNames: 'assets/[name]-[hash].js',
-                chunkFileNames: 'assets/[name]-[hash].js',
-                assetFileNames: 'assets/[name]-[hash].[ext]',
+                // HAPUS -[hash] agar nama file tetap (app.js / app.css)
+                // Ini penting agar bisa dipanggil manual via asset() di blade tanpa manifest parsing yang rumit
+                entryFileNames: 'assets/[name].js',
+                chunkFileNames: 'assets/[name].js',
+                assetFileNames: 'assets/[name].[ext]',
             },
         },
     },
