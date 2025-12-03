@@ -20,19 +20,35 @@ createInertiaApp({
         return resolvePageComponent(path, pages);
     },
     setup({ el, App, props }) {
-        // Ambil Ziggy Config dari Props (dikirim dari HandleInertiaRequests middleware)
+        // Ambil Ziggy Config dari Props
         // @ts-ignore
         const ziggyConfig = props.initialPage.props.ziggy;
-        // @ts-ignore
-        const siteName = props.initialPage.props.config?.site_name || 'Futurisme Admin';
+        
+        // LOG PROPS UNTUK DEBUGGING
+        console.log('[Futurisme] App Initialized. Props:', props.initialPage.props);
 
         // Setup Global Route Helper
         if (typeof window !== 'undefined') {
             // @ts-ignore
             window.route = (name, params, absolute, config) => {
-                // Gunakan config dari props, fallback ke window.Ziggy jika ada (misal dari blade)
+                // Gunakan config dari props sebagai prioritas utama
                 // @ts-ignore
-                const configToUse = ziggyConfig || window.Ziggy;
+                const configToUse = config || ziggyConfig || window.Ziggy;
+
+                // Jika routes kosong/tidak ada, jangan panggil ziggyRoute (karena akan error)
+                // Kembalikan string kosong atau nama route sebagai fallback
+                if (!configToUse || !configToUse.routes || Object.keys(configToUse.routes).length === 0) {
+                    // console.warn('[Futurisme] Ziggy routes missing. Using manual fallback.');
+                    
+                    // Mocking behavior sederhana untuk .current() agar tidak crash
+                    if (!name) {
+                         return { 
+                             current: () => undefined,
+                             has: () => false 
+                         }; 
+                    }
+                    return undefined;
+                }
                 
                 // @ts-ignore
                 return ziggyRoute(name, params, absolute, configToUse);

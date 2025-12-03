@@ -1,1 +1,0 @@
-const r=(e,t)=>{try{if(typeof window.route!="function")return t;const o=window.route();if(o&&typeof o.has=="function"&&o.has(e))return window.route(e)}catch{}return t},n=e=>{try{if(typeof window.route=="function"){const t=window.route();if(t&&typeof t.current=="function")return t.current(e)}}catch{return!1}return!1};export{n as i,r as s};

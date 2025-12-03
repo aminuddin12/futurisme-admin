@@ -41,20 +41,28 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isUsingDummy, setIsUsingDummy] = useState(false);
 
+    // --- LOG DATA UNTUK DEBUGGING ---
+    console.log('[Sidebar] Data menus dari props:', menus);
+    // ---------------------------------
+
     // Tentukan Menu Utama yang akan dirender
-    // Jika props 'menus' kosong, gunakan 'defaultMenus' dari dummy.ts
-    const menuItems = menus.length > 0 ? menus : defaultMenus;
+    // Jika props 'menus' kosong (array kosong), gunakan 'defaultMenus' dari dummy.ts
+    const menuItems = menus && menus.length > 0 ? menus : defaultMenus;
 
     useEffect(() => {
-        if (menus.length === 0) setIsUsingDummy(true);
+        if (!menus || menus.length === 0) {
+            console.warn('[Sidebar] Database menu kosong. Menggunakan dummy data.');
+            setIsUsingDummy(true);
+        } else {
+            setIsUsingDummy(false);
+        }
     }, [menus]);
 
     // Memisahkan Quick Links (Inbox/Notif) dari Menu Utama
     // Asumsi: Quick Links adalah item tanpa 'header' dan tanpa 'children' di awal array
-    // Anda bisa menyesuaikan logika filter ini sesuai struktur data real dari DB nanti.
     const quickLinks = menuItems.filter(item => !item.header && !item.children && ['Inbox', 'Notifications'].includes(item.title));
     
-    // Main Menu adalah sisanya (yang punya header atau children, atau bukan quick links)
+    // Main Menu adalah sisanya
     const mainMenus = menuItems.filter(item => !quickLinks.includes(item));
 
     return (
@@ -118,8 +126,7 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                     initial="hidden"
                     animate="show"
                 >
-                    {mainMenus.map((item) => {
-                        // Jika item adalah HEADER Group
+                    {mainMenus.map((item, index) => {
                         if (item.header) {
                             return (
                                 <motion.li key={item.id} className="fa-mt-6 first:fa-mt-0" variants={itemVariants}>
@@ -133,7 +140,6 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                                         <div className="fa-my-4 fa-mx-2 fa-h-px fa-bg-slate-200 dark:fa-bg-slate-700"></div>
                                     )}
                                     
-                                    {/* Render Children dari Group Header */}
                                     {item.children && (
                                         <ul className="fa-space-y-0.5">
                                             {item.children.map(child => (
@@ -147,7 +153,6 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                             );
                         }
                         
-                        // Render Item Biasa (yang bukan header & bukan quick link)
                         return (
                             <motion.li key={item.id} variants={itemVariants}>
                                 <SidebarItem item={item} urlPrefix={urlPrefix} isCollapsed={isCollapsed} />
@@ -156,9 +161,8 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                     })}
                 </motion.ul>
 
-                {/* Promo Card */}
                 <motion.div 
-                    className="fa-mx-2 fa-mt-8"
+                    className="fa-mx-4 fa-mt-8"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 }}
@@ -166,7 +170,6 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                     <PromoCard isCollapsed={isCollapsed} />
                 </motion.div>
 
-                {/* Bottom Menus (Static / Footer Menus) */}
                 <motion.ul 
                     className={`fa-space-y-0.5 fa-mt-6 fa-pt-4 ${isCollapsed ? 'fa-border-t-0' : 'fa-border-t fa-border-slate-200/60 dark:fa-border-slate-800 fa-mx-2'}`}
                     variants={listVariants}

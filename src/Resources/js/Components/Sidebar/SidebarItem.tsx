@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,15 +30,85 @@ export default function SidebarItem({
     const hasChildren = item.children && item.children.length > 0;
     const [isOpen, setIsOpen] = useState(false);
     
-    // Logika Aktif yang Lebih Ketat
-    // Pastikan hasil selalu boolean (true/false)
-    const isSelfActive = item.url ? isRouteActive(item.url) : false;
+    // --- LOGIKA AKTIF YANG LEBIH ROBUST ---
+    const checkRouteActive = (targetRouteName: string | null | undefined): boolean => {
+        if (!targetRouteName) return false;
+
+        // Cara 1: Coba pakai Ziggy .current()
+        try {
+            // @ts-ignore
+            if (typeof window !== 'undefined' && typeof window.route === 'function') {
+                // @ts-ignore
+                const r = window.route(); // Dapatkan instance router
+                
+                // Cek apakah instance valid
+                if (r && typeof r.current === 'function') {
+                    // @ts-ignore
+                    // Cek apakah rute saat ini COCOK dengan targetRouteName
+                    // Ziggy .current(name) mengembalikan boolean true/false
+                    // HATI-HATI: route().current() tanpa param return string, dengan param return boolean.
+                    // Kita gunakan versi dengan parameter untuk cek match.
+                    const isMatch = r.current(targetRouteName); 
+                    
+                    if (isMatch) {
+                        // console.log(`[SI-CheckRouteActive] - Match found via Ziggy for ${targetRouteName}`);
+                        return true;
+                    }
+
+                    // Cek wildcard manual jika Ziggy strict (misal 'futurisme.users.*')
+                    // @ts-ignore
+                    const currentRouteName = r.current(); 
+                    
+                    // FIX: Explicit check for string type before using startsWith
+                    // @ts-ignore
+                    if (typeof currentRouteName === 'string' && currentRouteName.startsWith(targetRouteName + '.')) {
+                         return true;
+                    }
+                }
+            }
+        } catch (e) { 
+            // Ziggy error, lanjut ke cara 2
+            // console.warn(`[SI-CheckRouteActive] - Ziggy check failed:`, e);
+        }
+
+        // Cara 2: Fallback Manual menggunakan URL Path (Jika Ziggy gagal/crash)
+        // Ini solusi pamungkas untuk error "Cannot convert undefined or null to object"
+        try {
+            if (typeof window !== 'undefined') {
+                const currentPath = window.location.pathname; // misal: /admin/dashboard
+                
+                // Konstruksi URL yang diharapkan dari targetRouteName
+                // Asumsi sederhana: futurisme.dashboard -> /admin/dashboard
+                // Kita pakai logika yang sama dengan fallbackUrl
+                const expectedPath = targetRouteName.split('.').slice(1).join('/').replace('index', '');
+                const expectedUrl = `/${urlPrefix}/${expectedPath}`.replace(/\/$/, '');
+
+                // Cek apakah URL browser diawali dengan URL yang diharapkan
+                // Tambahkan '/' di akhir untuk menghindari partial match (misal /admin/user vs /admin/users)
+                if (currentPath === expectedUrl || currentPath.startsWith(expectedUrl + '/')) {
+                    // console.log(`[SI-CheckRouteActive] - Match found via URL Path for ${targetRouteName}`);
+                    return true;
+                }
+            }
+        } catch (e) { }
+
+        return false;
+    };
+
+    const isSelfActive = checkRouteActive(item.url);
     
+    const checkChildActive = (children: SidebarItemType[]): boolean => {
+        return children.some(child => {
+            if (checkRouteActive(child.url)) return true;
+            if (child.children) return checkChildActive(child.children);
+            return false;
+        });
+    };
+
     const isChildActive = hasChildren && item.children 
-        ? item.children.some(child => child.url && isRouteActive(child.url))
+        ? checkChildActive(item.children)
         : false;
     
-    // State aktif final (Pastikan boolean)
     const isActive = Boolean(isSelfActive || isChildActive);
     
     // Fallback URL
@@ -48,7 +118,7 @@ export default function SidebarItem({
     const fallbackUrl = item.url ? `/${urlPrefix}/${fallbackPath}`.replace(/\/$/, '') : '#';
     const finalUrl = item.url ? safeRoute(item.url, fallbackUrl) : '#';
 
-    // Auto expand jika child aktif
+    // Auto expand
     useEffect(() => {
         if (hasChildren && !isCollapsed) {
             if (isChildActive) setIsOpen(true);
@@ -57,27 +127,24 @@ export default function SidebarItem({
         }
     }, [item.children, hasChildren, isCollapsed, isChildActive]);
 
+    // --- LOGIKA PADDING ---
     const getPaddingClass = (d: number) => {
         if (isCollapsed) return 'fa-justify-center fa-px-0';
         switch(d) {
-            case 0: return 'fa-pl-3';
-            case 1: return 'fa-pl-9'; 
-            case 2: return 'fa-pl-14';
-            default: return 'fa-pl-3';
+            case 0: return 'fa-pl-1'; 
+            case 1: return 'fa-pl-3'; 
+            case 2: return 'fa-pl-6'; 
+            default: return 'fa-pl-1';
         }
     };
     const paddingLeftClass = getPaddingClass(depth);
 
-    // --- Styling Classes ---
+    // --- STYLING CLASSES ---
     const listItemClass = `fa-mb-1 ${isCollapsed ? 'fa-px-2' : 'fa-px-3'} fa-relative`;
 
-    // Base Link Class
     const disableClick = isSelfActive && !hasChildren ? 'fa-pointer-events-none fa-cursor-default' : 'fa-cursor-pointer';
 
-    // PERBAIKAN LAYOUT:
-    // Gunakan 'justify-between' hanya jika perlu memisahkan konten kiri (icon+text) dengan kanan (chevron/badge)
-    // Jika collapsed, 'justify-center'
-    const justifyClass = isCollapsed ? 'fa-justify-center' : 'fa-justify-between';
+    const justifyClass = isCollapsed ? 'fa-justify-center' : 'fa-justify-start';
 
     const linkBaseClass = `
         fa-group fa-flex fa-items-center fa-w-full fa-py-2.5 fa-text-sm fa-font-medium fa-rounded-lg fa-transition-all fa-duration-200
@@ -85,20 +152,17 @@ export default function SidebarItem({
         ${disableClick}
     `;
 
-    // Active State: White bg + indigo text (Light), Dark bg + indigo text (Dark)
-    // Tambahkan border-indigo-100 agar lebih pop
     const activeClass = `
-        fa-bg-white fa-text-indigo-600 fa-shadow-sm fa-border fa-border-indigo-100
-        dark:fa-bg-slate-800 dark:fa-text-indigo-400 dark:fa-border-indigo-900/50
+        fa-bg-indigo-600 fa-text-white fa-shadow-md fa-border fa-border-indigo-700
+        dark:fa-bg-indigo-600 dark:fa-text-white
     `;
 
-    // Inactive State: Gray text
     const inactiveClass = `
         fa-text-slate-600 hover:fa-text-slate-900 hover:fa-bg-slate-100 fa-border fa-border-transparent
         dark:fa-text-slate-400 dark:hover:fa-text-white dark:hover:fa-bg-slate-800/50
     `;
 
-    // --- Logic Animasi Marquee (Text Berjalan) ---
+    // --- Logic Animasi Marquee ---
     const MarqueeText = ({ text, isActive }: { text: string, isActive: boolean }) => {
         const textRef = useRef<HTMLSpanElement>(null);
         const containerRef = useRef<HTMLDivElement>(null);
@@ -107,7 +171,9 @@ export default function SidebarItem({
 
         useEffect(() => {
             if (textRef.current && containerRef.current) {
-                setIsOverflowing(textRef.current.scrollWidth > containerRef.current.clientWidth);
+                const isLongText = text.length > 25;
+                const isScrollable = textRef.current.scrollWidth > containerRef.current.clientWidth;
+                setIsOverflowing(isLongText && isScrollable);
             }
         }, [text, isCollapsed]); 
 
@@ -116,34 +182,20 @@ export default function SidebarItem({
         return (
             <div 
                 ref={containerRef}
-                className="fa-flex-1 fa-overflow-hidden fa-whitespace-nowrap fa-relative"
+                className="fa-flex-1 fa-overflow-hidden fa-whitespace-nowrap fa-relative fa-mr-2"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <motion.span
                     ref={textRef}
                     className={`fa-block ${isActive ? 'fa-font-semibold' : ''}`}
-                    animate={
-                        isOverflowing && isHovered 
-                        ? { x: [0, -50, 0] } 
-                        : { x: 0 }
-                    }
-                    transition={
-                        isOverflowing && isHovered
-                        ? { 
-                            duration: 3, 
-                            repeat: Infinity, 
-                            ease: "linear",
-                            repeatType: "mirror" 
-                          }
-                        : {}
-                    }
+                    animate={isOverflowing && isHovered ? { x: [0, -50, 0] } : { x: 0 }}
+                    transition={isOverflowing && isHovered ? { duration: 4, repeat: Infinity, ease: "linear", repeatType: "mirror" } : {}}
                 >
                     {text}
                 </motion.span>
-                
-                {isOverflowing && !isHovered && (
-                    <div className="fa-absolute fa-right-0 fa-top-0 fa-bottom-0 fa-w-4 fa-bg-gradient-to-l fa-from-white/0 fa-to-transparent"></div>
+                {isOverflowing && !isHovered && !isActive && (
+                    <div className="fa-absolute fa-right-0 fa-top-0 fa-bottom-0 fa-w-6 fa-bg-gradient-to-l fa-from-white/0 fa-to-transparent"></div>
                 )}
             </div>
         );
@@ -157,7 +209,7 @@ export default function SidebarItem({
                     className={`${linkBaseClass} ${isOpen || isActive ? 'fa-text-indigo-700 fa-bg-indigo-50 dark:fa-text-indigo-300 dark:fa-bg-indigo-900/20' : 'fa-text-slate-600 hover:fa-bg-slate-100 dark:fa-text-slate-400 dark:hover:fa-bg-slate-800/50'}`}
                     title={isCollapsed ? item.title : undefined}
                 >
-                    <div className={`fa-flex fa-items-center fa-gap-3 fa-overflow-hidden ${isCollapsed ? 'fa-justify-center fa-w-full' : 'fa-w-full'}`}>
+                    <div className={`fa-flex fa-items-center fa-gap-3 fa-overflow-hidden ${isCollapsed ? 'fa-justify-center fa-w-full' : 'fa-flex-1'}`}>
                         {item.icon && (
                             <Icon 
                                 icon={item.icon} 
@@ -169,7 +221,7 @@ export default function SidebarItem({
                     {!isCollapsed && (
                         <Icon 
                             icon="heroicons:chevron-down" 
-                            className={`fa-w-4 fa-h-4 fa-flex-shrink-0 fa-transition-transform fa-duration-200 ${isOpen ? 'fa-rotate-180 fa-text-indigo-600' : 'fa-text-slate-400'}`} 
+                            className={`fa-w-4 fa-h-4 fa-flex-shrink-0 fa-ml-auto fa-transition-transform fa-duration-200 ${isOpen ? 'fa-rotate-180 fa-text-indigo-600' : 'fa-text-slate-400'}`} 
                         />
                     )}
                 </button>
@@ -199,26 +251,26 @@ export default function SidebarItem({
                 href={finalUrl}
                 className={`${linkBaseClass} ${isActive ? activeClass : inactiveClass}`}
                 title={isCollapsed ? item.title : undefined}
-                onClick={(e) => isSelfActive && e.preventDefault()}
+                onClick={(e) => {
+                    if (isSelfActive) e.preventDefault();
+                }}
             >
-                <div className={`fa-flex fa-items-center fa-gap-3 fa-overflow-hidden ${isCollapsed ? 'fa-justify-center fa-w-full' : 'fa-w-full'}`}>
+                <div className={`fa-flex fa-items-center fa-gap-3 fa-overflow-hidden ${isCollapsed ? 'fa-justify-center fa-w-full' : 'fa-flex-1'}`}>
                     {item.icon && (
                         <Icon 
                             icon={item.icon} 
-                            className={`fa-w-5 fa-h-5 fa-flex-shrink-0 ${isActive ? 'fa-text-indigo-600 dark:fa-text-indigo-400' : 'fa-text-slate-500 group-hover:fa-text-slate-700 dark:fa-text-slate-500 dark:group-hover:fa-text-slate-300'}`} 
+                            className={`fa-w-5 fa-h-5 fa-flex-shrink-0 ${isActive ? 'fa-text-white' : 'fa-text-slate-500 group-hover:fa-text-slate-700 dark:fa-text-slate-500 dark:group-hover:fa-text-slate-300'}`} 
                         />
                     )}
                     {!isCollapsed && <MarqueeText text={item.title} isActive={isActive} />}
                 </div>
                 
-                {/* Badge dipisahkan di kanan */}
                 {!isCollapsed && item.badge && (
-                    <span className={`fa-text-xs fa-font-medium fa-flex-shrink-0 fa-ml-2 ${isActive ? 'fa-text-indigo-700 dark:fa-text-indigo-300' : 'fa-text-slate-500'}`}>
+                    <span className={`fa-ml-auto fa-text-xs fa-font-medium fa-flex-shrink-0 fa-px-2 fa-py-0.5 fa-rounded-full ${isActive ? 'fa-bg-white/20 fa-text-white' : 'fa-bg-slate-100 fa-text-slate-600 dark:fa-bg-slate-700 dark:fa-text-slate-300'}`}>
                         {item.badge}
                     </span>
                 )}
                 
-                {/* Indikator Merah saat Collapsed (Dot) */}
                 {isCollapsed && item.badge && (
                     <span className="fa-absolute fa-top-2 fa-right-2 fa-w-2 fa-h-2 fa-bg-red-500 fa-rounded-full"></span>
                 )}
