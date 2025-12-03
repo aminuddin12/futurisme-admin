@@ -5,25 +5,11 @@ import { createRoot } from 'react-dom/client';
 // Import Ziggy
 import { route as ziggyRoute } from 'ziggy-js';
 
-// Setup Global Route Helper
-if (typeof window !== 'undefined') {
-    // Fungsi wrapper untuk route global
-    // @ts-ignore
-    window.route = (name, params, absolute, config) => {
-        // @ts-ignore
-        const ziggy = window.Ziggy;
-        
-        // @ts-ignore
-        return ziggyRoute(name, params, absolute, ziggy);
-    };
-}
-
 const appName = 'Futurisme Admin';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
     resolve: (name) => {
-        // console.log(`🔍 [Futurisme] Resolving page: ${name}`); 
         const pages = import.meta.glob('./Pages/**/*.tsx');
         const path = `./Pages/${name}.tsx`;
 
@@ -34,12 +20,23 @@ createInertiaApp({
         return resolvePageComponent(path, pages);
     },
     setup({ el, App, props }) {
-        // Cek apakah Ziggy sudah siap
+        // Ambil Ziggy Config dari Props (dikirim dari HandleInertiaRequests middleware)
         // @ts-ignore
-        if (!window.Ziggy || Object.keys(window.Ziggy.routes).length === 0) {
-             console.warn('[Futurisme] Ziggy routes are empty. Make sure php artisan route:clear has been run.');
-        } else {
-             // console.log('✅ [Futurisme] Ziggy loaded with ' + Object.keys(window.Ziggy.routes).length + ' routes.');
+        const ziggyConfig = props.initialPage.props.ziggy;
+        // @ts-ignore
+        const siteName = props.initialPage.props.config?.site_name || 'Futurisme Admin';
+
+        // Setup Global Route Helper
+        if (typeof window !== 'undefined') {
+            // @ts-ignore
+            window.route = (name, params, absolute, config) => {
+                // Gunakan config dari props, fallback ke window.Ziggy jika ada (misal dari blade)
+                // @ts-ignore
+                const configToUse = ziggyConfig || window.Ziggy;
+                
+                // @ts-ignore
+                return ziggyRoute(name, params, absolute, configToUse);
+            };
         }
 
         const root = createRoot(el);

@@ -12,19 +12,17 @@ class EnsureSetupIsNotCompleted
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Cek 1: Apakah Konfigurasi Dasar sudah ada? (Misal: site_name)
-        // Kita cek di DB settings ATAU di Environment
-        $configExists = FuturismeSetting::where('key', 'site_name')->exists() || env('FUTURISME_SITE_NAME');
+        // Cek apakah Admin sudah ada (tanda setup selesai)
+        try {
+            $adminExists = FuturismeAdmin::exists();
+        } catch (\Exception $e) {
+            $adminExists = false;
+        }
 
-        // Cek 2: Apakah Admin sudah ada?
-        $adminExists = FuturismeAdmin::exists();
-
-        // Jika CONFIG sudah ada DAN ADMIN sudah ada, maka Setup dianggap SELESAI.
-        // Blokir akses ke halaman setup.
-        if ($configExists && $adminExists) {
-            // Opsional: Redirect ke login atau tampilkan 404 agar url tersembunyi
-            return redirect()->route('futurisme.login'); 
-            // atau abort(404);
+        // Jika setup SUDAH selesai, jangan biarkan akses ke halaman setup lagi.
+        // Redirect ke login atau dashboard.
+        if ($adminExists) {
+            return redirect()->route('futurisme.login');
         }
 
         return $next($request);

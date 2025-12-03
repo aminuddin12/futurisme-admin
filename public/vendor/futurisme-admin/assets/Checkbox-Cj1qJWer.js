@@ -1,0 +1,1 @@
+import{j as t}from"./vendor-react-mIUCV8oU.js";import{a as e}from"./Login.module-bmnqtai8.js";function x({className:o="",...s}){return t.jsx("input",{...s,type:"checkbox",className:`${e.checkbox} ${o}`})}export{x as C};

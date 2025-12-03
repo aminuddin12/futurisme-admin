@@ -47,6 +47,12 @@ class InstallFuturismeAdmin extends Command
         $this->info('⚡ Running database migrations...');
         $this->call('migrate');
 
+        // BARU: Jalankan Seeder
+        $this->info('🌱 Seeding default data...');
+        $this->call('db:seed', [
+            '--class' => 'Aminuddin12\\FuturismeAdmin\\Database\\Seeders\\FuturismeDatabaseSeeder'
+        ]);
+
         // 6. Clear Caches
         $this->info('🧹 Clearing caches...');
         $this->callSilent('config:clear');

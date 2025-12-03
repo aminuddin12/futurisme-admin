@@ -7,8 +7,7 @@ use Aminuddin12\FuturismeAdmin\Console\Commands\InstallFuturismeAdmin;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeSetting;
-use Illuminate\Routing\Router; // Tambahkan ini
-use Aminuddin12\FuturismeAdmin\Http\Middleware\Authenticate; // Tambahkan ini
+use Illuminate\Routing\Router;
 
 class FuturismeAdminServiceProvider extends ServiceProvider
 {
@@ -16,98 +15,61 @@ class FuturismeAdminServiceProvider extends ServiceProvider
     {
         $packageRoot = __DIR__.'/../../';
 
-        // 1. Load Routes
+        // Load Routes & Views
         $this->loadRoutesFrom($packageRoot.'routes/web.php');
-
-        // 2. Load Views
         $this->loadViewsFrom($packageRoot.'src/Resources/views', 'futurisme');
-
-        // 3. Load Migrations
         $this->loadMigrationsFrom($packageRoot.'src/Database/Migrations');
 
-        // 4. Konfigurasi Auth
+        // Config Auth
         $this->configureAuth();
 
-        // 5. Register Middleware Alias (BARU)
-        // Ini mendaftarkan middleware 'futurisme.auth' yang kita buat
+        // Register Middleware Alias
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('futurisme.auth', \Aminuddin12\FuturismeAdmin\Http\Middleware\Authenticate::class);
+        // Middleware baru untuk cek setup
+        $router->aliasMiddleware('futurisme.setup_check', \Aminuddin12\FuturismeAdmin\Http\Middleware\EnsureSetupIsCompleted::class);
 
-        // 6. Register Command & Publishing
         if ($this->app->runningInConsole()) {
-            $this->commands([
-                InstallFuturismeAdmin::class,
-            ]);
-
+            $this->commands([InstallFuturismeAdmin::class]);
+            
             // Publishes... (sama seperti sebelumnya)
-            $this->publishes([
-                $packageRoot.'src/Config/fu-admin.php' => config_path('fu-admin.php'),
-            ], 'futurisme-config');
-
-            $this->publishes([
-                $packageRoot.'src/Resources/views' => resource_path('views/vendor/futurisme'),
-            ], 'futurisme-views');
-
-            $this->publishes([
-                $packageRoot.'public/vendor/futurisme-admin' => public_path('vendor/futurisme-admin'),
-            ], 'futurisme-assets');
+            $this->publishes([$packageRoot.'src/Config/fu-admin.php' => config_path('fu-admin.php')], 'futurisme-config');
+            $this->publishes([$packageRoot.'src/Resources/views' => resource_path('views/vendor/futurisme')], 'futurisme-views');
+            $this->publishes([$packageRoot.'public/vendor/futurisme-admin' => public_path('vendor/futurisme-admin')], 'futurisme-assets');
         }
 
-        // 7. Konfigurasi Dinamis
+        // KONFIGURASI DINAMIS (Database Override)
+        // Dijalankan di boot() agar tabel dan model sudah siap
         $this->configureDynamicSettings();
     }
 
-    // ... method lainnya (configureDynamicSettings, flattenArray, configureAuth, register) ...
-    // Pastikan method lain tetap ada, saya hanya fokus ke boot() di sini.
-    
     protected function configureDynamicSettings()
     {
-        $defaultConfig = Config::get('fu-admin', []);
-        $flattened = $this->flattenArray($defaultConfig);
+        // 1. Config File sudah dimuat di register() (yang mungkin ambil dari .env)
+        
+        // 2. Override dengan Database (Prioritas Tertinggi)
+        // Cek dulu apakah kita tidak sedang menjalankan migrasi (agar tidak error table not found saat migrate)
+        if (! $this->app->runningInConsole() || ! app()->runningUnitTests()) {
+            if (Schema::hasTable('futurisme_settings')) {
+                try {
+                    $settings = FuturismeSetting::all();
+                    foreach ($settings as $setting) {
+                        $value = $setting->value;
+                        if ($setting->type === 'boolean') $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                        elseif ($setting->type === 'json') $value = json_decode($value, true);
+                        elseif ($setting->type === 'integer') $value = (int) $value;
 
-        foreach ($flattened as $key => $defaultValue) {
-            $envKey = 'FUTURISME_' . strtoupper(str_replace('.', '_', $key));
-            $envValue = env($envKey);
-
-            if ($envValue !== null) {
-                if (in_array(strtolower($envValue), ['true', '(true)'])) $envValue = true;
-                elseif (in_array(strtolower($envValue), ['false', '(false)'])) $envValue = false;
-                elseif (strtolower($envValue) === 'null' || strtolower($envValue) === '(null)') $envValue = null;
-                
-                Config::set("fu-admin.{$key}", $envValue);
-            }
-        }
-
-        if (! $this->app->runningInConsole() && Schema::hasTable('futurisme_settings')) {
-            try {
-                $settings = FuturismeSetting::all();
-                foreach ($settings as $setting) {
-                    $value = $setting->value;
-                    if ($setting->type === 'boolean') $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                    elseif ($setting->type === 'json') $value = json_decode($value, true);
-                    elseif ($setting->type === 'integer') $value = (int) $value;
-
-                    Config::set('fu-admin.' . $setting->key, $value);
+                        // TIMPA config memori dengan nilai dari DB
+                        Config::set('fu-admin.' . $setting->key, $value);
+                    }
+                } catch (\Exception $e) {
+                    // Silent fail jika koneksi DB bermasalah
                 }
-            } catch (\Exception $e) {}
-        }
-    }
-
-    protected function flattenArray($array, $prefix = '')
-    {
-        $result = [];
-        foreach ($array as $key => $value) {
-            if (is_array($value) && ! empty($value)) {
-                $result = array_merge($result, $this->flattenArray($value, $prefix . $key . '.'));
-            } else {
-                $result[$prefix . $key] = $value;
             }
         }
-        return $result;
     }
 
-    protected function configureAuth()
-    {
+    protected function configureAuth() { 
         Config::set('auth.providers.futurisme_admins', [
             'driver' => 'eloquent',
             'model' => \Aminuddin12\FuturismeAdmin\Models\FuturismeAdmin::class,
@@ -121,13 +83,13 @@ class FuturismeAdminServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->mergeConfigFrom(
-            __DIR__.'/../../src/Config/fu-admin.php', 'fu-admin'
-        );
+        $this->mergeConfigFrom(__DIR__.'/../../src/Config/fu-admin.php', 'fu-admin');
+        
+        $ziggyProvider = '\Tightenco\Ziggy\ZiggyServiceProvider';
 
-        if (! $this->app->getProvider(\Tightenco\Ziggy\ZiggyServiceProvider::class)) {
-            if (class_exists(\Tightenco\Ziggy\ZiggyServiceProvider::class)) {
-                $this->app->register(\Tightenco\Ziggy\ZiggyServiceProvider::class);
+        if (class_exists($ziggyProvider)) {
+            if (! $this->app->getProviders($ziggyProvider)) {
+                $this->app->register($ziggyProvider);
             }
         }
     }

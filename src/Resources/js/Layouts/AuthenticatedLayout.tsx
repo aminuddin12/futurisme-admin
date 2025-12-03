@@ -1,103 +1,56 @@
 import { ReactNode } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
+import { Icon } from '@iconify/react';
 import styles from './Layout.module.css';
+import Sidebar from '../Components/Sidebar/Sidebar'; // Import Sidebar Baru
+import { safeRoute } from '../Utils/routeHelper';
 
 interface Props {
     children: ReactNode;
     header?: string;
 }
 
-// Helper SUPER AMAN untuk route (Copy dari Login.tsx / bisa dibuat utils terpisah)
-const safeRoute = (name: string, fallbackUrl: string): string => {
-    try {
-        // @ts-ignore
-        // Cek dulu apakah fungsi route ada
-        if (typeof window.route !== 'function') {
-            return fallbackUrl;
-        }
-
-        // @ts-ignore
-        // PENTING: Jangan terlalu agresif mengecek window.Ziggy === undefined di sini
-        // karena library route() ziggy-js mungkin bisa bekerja tanpanya di beberapa setup bundler
-        
-        // Langsung coba panggil route()
-        // @ts-ignore
-        const r: any = window.route();
-
-        // Jika rute ada di daftar, kembalikan URL-nya
-        if (r && typeof r.has === 'function' && r.has(name)) {
-             // @ts-ignore
-             return window.route(name);
-        }
-    } catch (e) {
-        // Silent fail - jangan spam console
-    }
-    return fallbackUrl;
-};
-
-// Helper untuk mengecek active route dengan aman
-const isRouteActive = (name: string): boolean => {
-    try {
-        // @ts-ignore
-        if (typeof window.route === 'function') {
-             // @ts-ignore
-             const r: any = window.route();
-             if (r && typeof r.current === 'function') {
-                 return r.current(name);
-             }
-        }
-    } catch (e) { return false; }
-    return false;
-};
-
 export default function AuthenticatedLayout({ children, header }: Props) {
-    // Mengambil data user dari props Inertia
-    const { auth } = usePage().props as any;
+    // Ambil data user, config, dan menus (dari middleware) dari props Inertia
+    const { auth, config, menus } = usePage().props as any;
+    
+    const urlPrefix = config?.url_prefix || 'admin';
 
     const handleLogout = () => {
-        // Gunakan fallback URL manual '/admin/logout'
-        router.post(safeRoute('futurisme.logout', '/admin/logout'));
+        router.post(safeRoute('futurisme.logout', `/${urlPrefix}/logout`));
     };
 
     return (
         <div className={styles.wrapper}>
-            {/* Sidebar */}
-            <aside className={styles.sidebar}>
-                <div className={styles.brand}>
-                    <span>Futurisme</span>
-                </div>
-                <nav className="fa-mt-6 fa-flex-1">
-                    <Link
-                        // Fallback ke '/admin' jika route tidak ditemukan
-                        href={safeRoute('futurisme.dashboard', '/admin')}
-                        className={`${styles.navLink} ${isRouteActive('futurisme.dashboard') ? styles.navLinkActive : ''}`}
-                    >
-                        Dashboard
-                    </Link>
-                    {/* Placeholder Menu Lain */}
-                    <Link href="#" className={styles.navLink}>
-                        Settings
-                    </Link>
-                    <Link href="#" className={styles.navLink}>
-                        Users
-                    </Link>
-                </nav>
-            </aside>
+            {/* Sidebar Component (Dinamis & Modular) */}
+            <Sidebar menus={menus || []} />
 
             {/* Main Content */}
             <main className={styles.mainContent}>
                 {/* Header / Topbar */}
                 <header className={styles.header}>
-                    <h2 className="fa-font-semibold fa-text-xl fa-text-gray-800 fa-leading-tight">
-                        {header || 'Dashboard'}
-                    </h2>
+                    <div className="fa-flex fa-items-center">
+                        <h2 className="fa-font-semibold fa-text-xl fa-text-gray-800 fa-leading-tight">
+                            {header || 'Dashboard'}
+                        </h2>
+                    </div>
 
                     <div className="fa-flex fa-items-center fa-gap-4">
-                        <span className="fa-text-sm fa-text-gray-600">
-                            Halo, {auth?.user?.name || 'Admin'}
-                        </span>
-                        <button onClick={handleLogout} className={styles.logoutBtn}>
-                            Logout
+                        <div className="fa-text-right fa-mr-2 fa-hidden sm:fa-block">
+                            <div className="fa-text-sm fa-font-medium fa-text-gray-900">
+                                {auth?.user?.name || 'Admin'}
+                            </div>
+                            <div className="fa-text-xs fa-text-gray-500">
+                                {auth?.user?.email}
+                            </div>
+                        </div>
+                        
+                        <button 
+                            onClick={handleLogout} 
+                            className="fa-p-2 fa-text-gray-400 hover:fa-text-red-500 fa-transition-colors fa-rounded-full hover:fa-bg-gray-100"
+                            title="Logout"
+                        >
+                            <Icon icon="heroicons:arrow-right-on-rectangle" className="fa-h-6 fa-w-6" />
                         </button>
                     </div>
                 </header>

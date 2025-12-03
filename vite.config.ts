@@ -6,27 +6,40 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            // Path relatif terhadap root paket
             input: ['src/Resources/css/app.css', 'src/Resources/js/app.tsx'],
-            // Folder output build (akan dipublish ke user nanti)
             buildDirectory: 'vendor/futurisme-admin',
-            // Refresh path
             refresh: ['src/Resources/views/**'],
         }),
         react(),
     ],
     build: {
-        // Output ke folder public paket
         outDir: 'public/vendor/futurisme-admin',
         emptyOutDir: true,
-        manifest: true,
+        manifest: true, // Wajib true agar kita bisa baca mapping file-nya
         rollupOptions: {
             output: {
-                // HAPUS -[hash] agar nama file tetap (app.js / app.css)
-                // Ini penting agar bisa dipanggil manual via asset() di blade tanpa manifest parsing yang rumit
-                entryFileNames: 'assets/[name].js',
-                chunkFileNames: 'assets/[name].js',
-                assetFileNames: 'assets/[name].[ext]',
+                // KITA KEMBALIKAN KE DEFAULT (DENGAN HASH)
+                // Hapus entryFileNames yang statis agar Vite otomatis kasih hash
+                // entryFileNames: 'assets/[name].js', <-- Hapus/Komentar ini
+                // chunkFileNames: 'assets/[name].js', <-- Hapus/Komentar ini
+                // assetFileNames: 'assets/[name].[ext]', <-- Hapus/Komentar ini
+                
+                // Atau set eksplisit dengan hash:
+                entryFileNames: 'assets/[name]-[hash].js',
+                chunkFileNames: 'assets/[name]-[hash].js',
+                assetFileNames: 'assets/[name]-[hash].[ext]',
+                
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('react') || id.includes('react-dom')) {
+                            return 'vendor-react';
+                        }
+                        if (id.includes('framer-motion') || id.includes('@iconify')) {
+                            return 'vendor-ui';
+                        }
+                        return 'vendor'; 
+                    }
+                },
             },
         },
     },
