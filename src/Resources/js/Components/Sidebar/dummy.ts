@@ -22,7 +22,4 @@ export const defaultMenus = [
 
 export const bottomMenus = [
     { id: 201, title: 'Preferences', url: 'futurisme.settings', icon: 'heroicons:adjustments-horizontal' },
-    { id: 202, title: 'Dark mode', url: '#', icon: 'heroicons:moon' },
-    { id: 203, title: 'Themes', url: '#', icon: 'heroicons:swatch' },
-    { id: 204, title: 'Help', url: '#', icon: 'heroicons:question-mark-circle' },
 ];

@@ -7,10 +7,8 @@ import { route as ziggyRoute } from 'ziggy-js';
 // Import ThemeProvider
 import { ThemeProvider } from './Components/Theme/ThemeContext';
 
-const appName = 'Futurisme Admin';
-
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title}`,
     resolve: (name) => {
         const pages = import.meta.glob('./Pages/**/*.tsx');
         const path = `./Pages/${name}.tsx`;
