@@ -1,8 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Mengimpor Tailwind CSS v4 */
+@import "tailwindcss";
 
-/* Custom Scrollbar (Opsional) */
+/* Konfigurasi Tema di v4 dilakukan langsung di CSS menggunakan @theme block 
+  jika ingin meng-extend atau override default.
+*/
+@theme {
+  /* Menambahkan warna kustom */
+  --color-brand: #6366f1;
+
+  /* Menambahkan prefix jika diperlukan, tapi v4 lebih menyarankan 
+     menggunakan scoping atau CSS variables.
+     Jika Anda BUTUH prefix 'fa-', v4 menanganinya lewat konfigurasi plugin postcss
+     atau opsi khusus. Namun, cara modern adalah menggunakan native CSS.
+  */
+}
+
+/* Custom Scrollbar 
+  (Tailwind v4 mendukung banyak utilities modern, tapi custom scrollbar 
+  masih sering butuh CSS manual)
+*/
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -10,7 +26,7 @@
 ::-webkit-scrollbar-track {
     background: #f1f1f1; 
 }
-.dark ::-webkit-scrollbar-track {
+:root.dark ::-webkit-scrollbar-track {
     background: #1e293b; /* slate-800 */
 }
 
@@ -18,32 +34,30 @@
     background: #c1c1c1; 
     border-radius: 4px;
 }
-.dark ::-webkit-scrollbar-thumb {
+:root.dark ::-webkit-scrollbar-thumb {
     background: #475569; /* slate-600 */
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8; 
 }
-.dark ::-webkit-scrollbar-thumb:hover {
+:root.dark ::-webkit-scrollbar-thumb:hover {
     background: #64748b; /* slate-500 */
 }
 
-/* GLOBAL THEME STYLES
-   Penting: Mengatur background dan warna teks body secara global
-   berdasarkan class 'dark' di html.
+/* Global Theme Styles 
+  Menggunakan @layer base tetap didukung untuk kompatibilitas,
+  tapi syntax v4 lebih menyukai native CSS nesting.
 */
 @layer base {
     body {
-        @apply fa-text-slate-900 fa-bg-gray-50;
-        /* Transisi halus saat ganti tema */
-        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 300ms;
+        /* Menggunakan @apply tetap bisa */
+        @apply text-slate-900 bg-gray-50;
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Dark Mode Global Override */
-    .dark body {
-        @apply fa-text-slate-100 fa-bg-slate-900;
+    /* Override untuk Dark Mode */
+    :root.dark body {
+        @apply text-slate-100 bg-slate-900;
     }
 }

@@ -1,9 +1,14 @@
 import { LabelHTMLAttributes } from 'react';
-import styles from './Form.module.css';
 
 export default function InputLabel({ value, className = '', children, ...props }: LabelHTMLAttributes<HTMLLabelElement> & { value?: string }) {
     return (
-        <label {...props} className={`${styles.label} ${className}`}>
+        <label 
+            {...props} 
+            className={`
+                block font-medium text-sm text-gray-700 mb-1 
+                ${className}
+            `}
+        >
             {value ? value : children}
         </label>
     );

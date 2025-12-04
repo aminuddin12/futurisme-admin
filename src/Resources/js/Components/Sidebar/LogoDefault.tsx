@@ -9,8 +9,8 @@ interface LogoDefaultProps {
 
 export default function LogoDefault({
   className = "",
-  textClassName = "fa-text-slate-900 dark:fa-text-white",
-  iconClassName = "fa-w-8 fa-h-8",
+  textClassName = "text-slate-900 dark:text-white",
+  iconClassName = "w-8 h-8",
 }: LogoDefaultProps) {
   const { config } = usePage().props as any;
 
@@ -18,13 +18,13 @@ export default function LogoDefault({
   const siteName = config?.site_name || "Futurisme Admin";
 
   return (
-    <div className={`fa-flex fa-items-center fa-gap-3 ${className}`}>
+    <div className={`flex items-center gap-3 ${className}`}>
       <svg
         viewBox="0 0 191 192"
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
         xmlSpace="preserve"
-        className={`${iconClassName} fa-text-indigo-600`}
+        className={`${iconClassName} text-indigo-600`}
         style={{
           fillRule: "evenodd",
           clipRule: "evenodd",
@@ -69,7 +69,7 @@ export default function LogoDefault({
       </svg>
 
       <span
-        className={`fa-font-bold fa-text-lg fa-tracking-tight fa-whitespace-nowrap ${textClassName}`}
+        className={`font-bold text-lg tracking-tight whitespace-nowrap ${textClassName}`}
       >
         {siteName}
       </span>

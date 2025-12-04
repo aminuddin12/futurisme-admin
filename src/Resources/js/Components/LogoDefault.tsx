@@ -11,7 +11,7 @@ interface LogoProps extends HTMLAttributes<HTMLDivElement> {
 export default function LogoDefault({ 
     className = '', 
     textClassName = '',
-    iconClassName = 'fa-w-10 fa-h-10', // Ukuran default ikon
+    iconClassName = '  w-10   h-10', // Ukuran default ikon
     href = '/', // Link default
     ...props 
 }: LogoProps) {
@@ -23,7 +23,7 @@ export default function LogoDefault({
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
         xmlSpace="preserve"
-        className={`${iconClassName} fa-text-indigo-600`}
+        className={`${iconClassName}   text-indigo-600`}
         style={{
           fillRule: "evenodd",
           clipRule: "evenodd",
@@ -69,19 +69,19 @@ export default function LogoDefault({
     );
 
     return (
-        <div className={`fa-flex fa-items-center fa-justify-center fa-gap-3 ${className}`} {...props}>
-            <Link href={href} className="fa-flex fa-items-center fa-gap-3 fa-group fa-no-underline">
+        <div className={`  flex   items-center   justify-center   gap-3 ${className}`} {...props}>
+            <Link href={href} className="  flex   items-center   gap-3   group   no-underline">
                 {/* Bagian Icon */}
-                <div className="fa-transition-transform fa-duration-300 group-hover:fa-rotate-12">
+                <div className="  transition-transform   duration-300 group-hover:  rotate-12">
                     <LogoSVG />
                 </div>
 
                 {/* Bagian Teks Logo (2 Warna) */}
-                <div className={`fa-flex fa-flex-col fa-leading-none ${textClassName}`}>
-                    <span className="fa-text-xl fa-font-bold fa-text-gray-800 fa-tracking-tight group-hover:fa-text-indigo-700 fa-transition-colors">
+                <div className={`  flex   flex-col   leading-none ${textClassName}`}>
+                    <span className="  text-xl   font-bold   text-gray-800   tracking-tight group-hover:  text-indigo-700   transition-colors">
                         Futurisme
                     </span>
-                    <span className="fa-text-sm fa-font-medium fa-text-indigo-600 fa-tracking-widest fa-uppercase">
+                    <span className="  text-sm   font-medium   text-indigo-600   tracking-widest   uppercase">
                         Admin Panel
                     </span>
                 </div>

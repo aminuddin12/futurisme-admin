@@ -27,31 +27,31 @@ export default function Header({ headerTitle }: HeaderProps) {
 
     return (
         <>
-            <header className="fa-h-16 fa-bg-white dark:fa-bg-slate-900 fa-border-b fa-border-slate-200 dark:fa-border-slate-800 fa-flex fa-items-center fa-justify-between fa-px-6 fa-sticky fa-top-0 fa-z-30 fa-transition-colors fa-duration-300">
+            <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 sticky top-0 z-30 transition-colors duration-300">
                 
                 {/* Left: Title */}
-                <div className="fa-flex fa-items-center fa-gap-4">
-                    <button className="lg:fa-hidden fa-p-2 fa-text-slate-500 hover:fa-bg-slate-100 dark:hover:fa-bg-slate-800 fa-rounded-lg fa-transition-colors">
+                <div className="flex items-center gap-4">
+                    <button className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                         <Icon icon="heroicons:bars-3" width="24" height="24" />
                     </button>
 
-                    <h2 className="fa-font-semibold fa-text-lg fa-text-slate-800 dark:fa-text-white fa-leading-tight">
+                    <h2 className="font-semibold text-lg text-slate-800 dark:text-white leading-tight">
                         {headerTitle || 'Dashboard'}
                     </h2>
                 </div>
 
                 {/* Right: Actions */}
-                <div className="fa-flex fa-items-center fa-gap-3 sm:fa-gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                     
                     {/* Search Trigger */}
                     <button 
                         onClick={() => setIsSearchOpen(true)}
-                        className="fa-hidden sm:fa-flex fa-items-center fa-gap-3 fa-px-3 fa-py-1.5 fa-bg-slate-50 dark:fa-bg-slate-800 fa-border fa-border-slate-200 dark:fa-border-slate-700 fa-rounded-lg fa-text-sm fa-text-slate-500 hover:fa-border-indigo-300 hover:fa-text-indigo-600 dark:hover:fa-text-indigo-400 fa-transition-all fa-group fa-w-48 lg:fa-w-64"
+                        className="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-500 hover:border-indigo-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all group w-48 lg:w-64"
                     >
-                        <Icon icon="heroicons:magnifying-glass" className="fa-w-4 fa-h-4 group-hover:fa-text-indigo-500" />
-                        <span className="fa-flex-1 fa-text-left">Search...</span>
-                        <div className="fa-flex fa-items-center fa-gap-1">
-                            <kbd className="fa-hidden lg:fa-inline-block fa-font-sans fa-text-[10px] fa-font-bold fa-px-1.5 fa-py-0.5 fa-bg-white dark:fa-bg-slate-700 fa-border fa-border-slate-200 dark:fa-border-slate-600 fa-text-slate-400 fa-rounded">
+                        <Icon icon="heroicons:magnifying-glass" className="w-4 h-4 group-hover:text-indigo-500" />
+                        <span className="flex-1 text-left">Search...</span>
+                        <div className="flex items-center gap-1">
+                            <kbd className="hidden lg:inline-block font-sans text-[10px] font-bold px-1.5 py-0.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-400 rounded">
                                 ⌘K
                             </kbd>
                         </div>
@@ -60,7 +60,7 @@ export default function Header({ headerTitle }: HeaderProps) {
                     {/* Mobile Search Icon */}
                     <button 
                         onClick={() => setIsSearchOpen(true)}
-                        className="sm:fa-hidden fa-p-2 fa-text-slate-500 hover:fa-bg-slate-100 dark:fa-hover:bg-slate-800 fa-rounded-full fa-transition-colors"
+                        className="sm:hidden p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
                     >
                         <Icon icon="heroicons:magnifying-glass" width="20" height="20" />
                     </button>
@@ -69,16 +69,16 @@ export default function Header({ headerTitle }: HeaderProps) {
                     <ThemeToggle />
 
                     {/* Notification Bell */}
-                    <button className="fa-p-2 fa-text-slate-500 hover:fa-bg-slate-100 dark:fa-hover:bg-slate-800 fa-rounded-full fa-relative fa-transition-colors">
+                    <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full relative transition-colors">
                         <Icon icon="heroicons:bell" width="20" height="20" />
-                        <span className="fa-absolute fa-top-2 fa-right-2 fa-w-2 fa-h-2 fa-bg-red-500 fa-rounded-full fa-border-2 fa-border-white dark:fa-border-slate-900"></span>
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
                     </button>
 
                     {/* Divider */}
-                    <div className="fa-h-6 fa-w-px fa-bg-slate-200 dark:fa-bg-slate-700 fa-mx-1"></div>
+                    <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
 
                     {/* Help Button */}
-                    <button className="fa-p-2 fa-text-slate-500 hover:fa-bg-slate-100 dark:fa-hover:bg-slate-800 fa-rounded-full fa-transition-colors">
+                    <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
                         <Icon icon="heroicons:question-mark-circle" width="20" height="20" />
                     </button>
 

@@ -70,7 +70,7 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fa-fixed fa-inset-0 fa-bg-slate-900/50 fa-backdrop-blur-sm fa-z-50"
+                        className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50"
                     />
 
                     {/* Modal Panel */}
@@ -78,80 +78,80 @@ export default function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                         initial={{ opacity: 0, scale: 0.95, y: -20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                        className="fa-fixed fa-inset-0 fa-z-50 fa-flex fa-items-start fa-justify-center fa-pt-24 fa-pointer-events-none"
+                        className="fixed inset-0 z-50 flex items-start justify-center pt-24 pointer-events-none"
                     >
-                        <div className="fa-w-full fa-max-w-2xl fa-bg-white dark:fa-bg-slate-900 fa-rounded-xl fa-shadow-2xl fa-pointer-events-auto fa-overflow-hidden fa-border fa-border-slate-200 dark:fa-border-slate-700 fa-mx-4">
+                        <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl pointer-events-auto overflow-hidden border border-slate-200 dark:border-slate-700 mx-4">
                             
                             {/* Search Input Header */}
-                            <div className="fa-relative fa-flex fa-items-center fa-p-4 fa-border-b fa-border-slate-100 dark:fa-border-slate-800">
-                                <Icon icon="heroicons:magnifying-glass" className="fa-w-6 fa-h-6 fa-text-slate-400" />
+                            <div className="relative flex items-center p-4 border-b border-slate-100 dark:border-slate-800">
+                                <Icon icon="heroicons:magnifying-glass" className="w-6 h-6 text-slate-400" />
                                 <input
                                     autoFocus
                                     type="text"
                                     placeholder="Search commands, users, or pages..."
-                                    className="fa-flex-1 fa-bg-transparent fa-border-none fa-text-slate-900 dark:fa-text-white fa-text-lg fa-placeholder-slate-400 focus:fa-ring-0 fa-ml-3"
+                                    className="flex-1 bg-transparent border-none text-slate-900 dark:text-white text-lg placeholder-slate-400 focus:ring-0 ml-3"
                                     value={query}
                                     onChange={(e) => setQuery(e.target.value)}
                                 />
-                                <div className="fa-flex fa-items-center fa-gap-2">
-                                    <kbd className="fa-hidden sm:fa-inline-block fa-px-2 fa-py-1 fa-text-xs fa-font-semibold fa-text-slate-500 fa-bg-slate-100 dark:fa-bg-slate-800 fa-rounded fa-border fa-border-slate-200 dark:fa-border-slate-700">ESC</kbd>
-                                    <button onClick={onClose} className="fa-p-1 fa-hover:bg-slate-100 dark:fa-hover:bg-slate-800 fa-rounded">
-                                        <Icon icon="heroicons:x-mark" className="fa-w-5 fa-h-5 fa-text-slate-400" />
+                                <div className="flex items-center gap-2">
+                                    <kbd className="hidden sm:inline-block px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">ESC</kbd>
+                                    <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded">
+                                        <Icon icon="heroicons:x-mark" className="w-5 h-5 text-slate-400" />
                                     </button>
                                 </div>
                             </div>
 
                             {/* Results Body */}
-                            <div className="fa-max-h-96 fa-overflow-y-auto custom-scrollbar">
+                            <div className="max-h-96 overflow-y-auto custom-scrollbar">
                                 {loading ? (
-                                    <div className="fa-p-8 fa-text-center fa-text-slate-500">
-                                        <Icon icon="eos-icons:loading" className="fa-w-8 fa-h-8 fa-mx-auto fa-mb-2 fa-animate-spin" />
+                                    <div className="p-8 text-center text-slate-500">
+                                        <Icon icon="eos-icons:loading" className="w-8 h-8 mx-auto mb-2 animate-spin" />
                                         <p>Searching...</p>
                                     </div>
                                 ) : results.length > 0 ? (
-                                    <div className="fa-p-2">
+                                    <div className="p-2">
                                         {/* Grouping Logic could be added here */}
-                                        <div className="fa-px-3 fa-py-2 fa-text-xs fa-font-semibold fa-text-slate-400 fa-uppercase">Top Results</div>
+                                        <div className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase">Top Results</div>
                                         
                                         {results.map((result) => (
                                             <button
                                                 key={result.id}
                                                 onClick={() => handleNavigate(result.url)}
-                                                className="fa-w-full fa-flex fa-items-center fa-gap-3 fa-px-3 fa-py-3 fa-rounded-lg hover:fa-bg-indigo-50 dark:hover:fa-bg-indigo-900/20 fa-group fa-transition-colors"
+                                                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 group transition-colors"
                                             >
-                                                <div className="fa-p-2 fa-rounded-md fa-bg-slate-100 dark:fa-bg-slate-800 group-hover:fa-bg-white dark:group-hover:fa-bg-slate-700 fa-text-slate-500 dark:fa-text-slate-400 group-hover:fa-text-indigo-600">
-                                                    <Icon icon={result.category === 'Menu' ? 'heroicons:list-bullet' : 'heroicons:document-text'} className="fa-w-5 fa-h-5" />
+                                                <div className="p-2 rounded-md bg-slate-100 dark:bg-slate-800 group-hover:bg-white dark:group-hover:bg-slate-700 text-slate-500 dark:text-slate-400 group-hover:text-indigo-600">
+                                                    <Icon icon={result.category === 'Menu' ? 'heroicons:list-bullet' : 'heroicons:document-text'} className="w-5 h-5" />
                                                 </div>
-                                                <div className="fa-flex-1 fa-text-left">
-                                                    <p className="fa-text-sm fa-font-medium fa-text-slate-700 dark:fa-text-slate-200 group-hover:fa-text-indigo-700 dark:group-hover:fa-text-indigo-400">
+                                                <div className="flex-1 text-left">
+                                                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-400">
                                                         {result.title}
                                                     </p>
-                                                    <p className="fa-text-xs fa-text-slate-500">
+                                                    <p className="text-xs text-slate-500">
                                                         {result.category}
                                                     </p>
                                                 </div>
-                                                <Icon icon="heroicons:chevron-right" className="fa-w-4 fa-h-4 fa-text-slate-300 group-hover:fa-text-indigo-400" />
+                                                <Icon icon="heroicons:chevron-right" className="w-4 h-4 text-slate-300 group-hover:text-indigo-400" />
                                             </button>
                                         ))}
                                     </div>
                                 ) : query.length > 1 ? (
-                                    <div className="fa-p-12 fa-text-center">
-                                        <Icon icon="heroicons:magnifying-glass" className="fa-w-12 fa-h-12 fa-mx-auto fa-text-slate-300 fa-mb-3" />
-                                        <p className="fa-text-slate-900 dark:fa-text-white fa-font-medium">No results found</p>
-                                        <p className="fa-text-sm fa-text-slate-500">We couldn't find anything matching "{query}"</p>
+                                    <div className="p-12 text-center">
+                                        <Icon icon="heroicons:magnifying-glass" className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                                        <p className="text-slate-900 dark:text-white font-medium">No results found</p>
+                                        <p className="text-sm text-slate-500">We couldn't find anything matching "{query}"</p>
                                     </div>
                                 ) : (
-                                    <div className="fa-p-12 fa-text-center">
-                                        <p className="fa-text-sm fa-text-slate-400">Type something to start searching...</p>
+                                    <div className="p-12 text-center">
+                                        <p className="text-sm text-slate-400">Type something to start searching...</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Footer Hints */}
-                            <div className="fa-px-4 fa-py-3 fa-bg-slate-50 dark:fa-bg-slate-800/50 fa-border-t fa-border-slate-100 dark:fa-border-slate-800 fa-flex fa-items-center fa-justify-between fa-text-xs fa-text-slate-500">
-                                <div className="fa-flex fa-gap-4">
-                                    <span className="fa-flex fa-items-center"><kbd className="fa-font-sans fa-bg-white dark:fa-bg-slate-700 fa-border fa-border-slate-200 dark:fa-border-slate-600 fa-rounded fa-px-1.5 fa-mr-1">↵</kbd> to select</span>
-                                    <span className="fa-flex fa-items-center"><kbd className="fa-font-sans fa-bg-white dark:fa-bg-slate-700 fa-border fa-border-slate-200 dark:fa-border-slate-600 fa-rounded fa-px-1.5 fa-mr-1">↑↓</kbd> to navigate</span>
+                            <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                                <div className="flex gap-4">
+                                    <span className="flex items-center"><kbd className="font-sans bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-1.5 mr-1">↵</kbd> to select</span>
+                                    <span className="flex items-center"><kbd className="font-sans bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-1.5 mr-1">↑↓</kbd> to navigate</span>
                                 </div>
                                 <span>Futurisme Search</span>
                             </div>

@@ -1,9 +1,14 @@
 import { HTMLAttributes } from 'react';
-import styles from './Form.module.css';
 
 export default function InputError({ message, className = '', ...props }: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
     return message ? (
-        <p {...props} className={`${styles.error} ${className}`}>
+        <p 
+            {...props} 
+            className={`
+                text-sm text-red-600 mt-1 animate-pulse 
+                ${className}
+            `}
+        >
             {message}
         </p>
     ) : null;

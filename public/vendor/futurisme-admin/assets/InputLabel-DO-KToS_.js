@@ -1,1 +1,0 @@
-import{j as e}from"./vendor-react-mIUCV8oU.js";import{a as l}from"./Login.module-bmnqtai8.js";function n({value:s,className:r="",children:t,...a}){return e.jsx("label",{...a,className:`${l.label} ${r}`,children:s||t})}export{n as I};

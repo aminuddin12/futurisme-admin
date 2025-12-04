@@ -1,5 +1,4 @@
 import { forwardRef, useEffect, useRef, InputHTMLAttributes } from 'react';
-import styles from './Form.module.css';
 
 export default forwardRef(function TextInput(
     { type = 'text', className = '', isFocused = false, ...props }: InputHTMLAttributes<HTMLInputElement> & { isFocused?: boolean },
@@ -17,7 +16,13 @@ export default forwardRef(function TextInput(
         <input
             {...props}
             type={type}
-            className={`${styles.input} ${className}`}
+            className={`
+                border-gray-300 text-gray-900 rounded-lg shadow-sm 
+                w-full transition-all duration-200 
+                focus:border-indigo-500 focus:ring-indigo-500 
+                py-[0.6rem] 
+                ${className}
+            `}
             ref={localRef}
         />
     );

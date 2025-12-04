@@ -129,37 +129,37 @@ export default function SidebarItem({
 
     // --- LOGIKA PADDING ---
     const getPaddingClass = (d: number) => {
-        if (isCollapsed) return 'fa-justify-center fa-px-0';
+        if (isCollapsed) return 'justify-center px-0';
         switch(d) {
-            case 0: return 'fa-pl-1'; 
-            case 1: return 'fa-pl-3'; 
-            case 2: return 'fa-pl-6'; 
-            default: return 'fa-pl-1';
+            case 0: return 'pl-1'; 
+            case 1: return 'pl-3'; 
+            case 2: return 'pl-6'; 
+            default: return 'pl-1';
         }
     };
     const paddingLeftClass = getPaddingClass(depth);
 
     // --- STYLING CLASSES ---
-    const listItemClass = `fa-mb-1 ${isCollapsed ? 'fa-px-2' : 'fa-px-3'} fa-relative`;
+    const listItemClass = `mb-1 ${isCollapsed ? 'px-2' : 'px-3'} relative`;
 
-    const disableClick = isSelfActive && !hasChildren ? 'fa-pointer-events-none fa-cursor-default' : 'fa-cursor-pointer';
+    const disableClick = isSelfActive && !hasChildren ? 'pointer-events-none cursor-default' : 'cursor-pointer';
 
-    const justifyClass = isCollapsed ? 'fa-justify-center' : 'fa-justify-start';
+    const justifyClass = isCollapsed ? 'justify-center' : 'justify-start';
 
     const linkBaseClass = `
-        fa-group fa-flex fa-items-center fa-w-full fa-py-2.5 fa-text-sm fa-font-medium fa-rounded-lg fa-transition-all fa-duration-200
-        ${paddingLeftClass} ${justifyClass} fa-pr-3
+        group flex items-center w-full py-2.5 text-sm font-medium rounded-lg transition-all duration-200
+        ${paddingLeftClass} ${justifyClass} pr-3
         ${disableClick}
     `;
 
     const activeClass = `
-        fa-bg-indigo-600 fa-text-white fa-shadow-md fa-border fa-border-indigo-700
-        dark:fa-bg-indigo-600 dark:fa-text-white
+        bg-indigo-600 text-white shadow-md border border-indigo-700
+        dark:bg-indigo-600 dark:text-white
     `;
 
     const inactiveClass = `
-        fa-text-slate-600 hover:fa-text-slate-900 hover:fa-bg-slate-100 fa-border fa-border-transparent
-        dark:fa-text-slate-400 dark:hover:fa-text-white dark:hover:fa-bg-slate-800/50
+        text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent
+        dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50
     `;
 
     // --- Logic Animasi Marquee ---
@@ -182,20 +182,20 @@ export default function SidebarItem({
         return (
             <div 
                 ref={containerRef}
-                className="fa-flex-1 fa-overflow-hidden fa-whitespace-nowrap fa-relative fa-mr-2"
+                className="flex-1 overflow-hidden whitespace-nowrap relative mr-2"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <motion.span
                     ref={textRef}
-                    className={`fa-block ${isActive ? 'fa-font-semibold' : ''}`}
+                    className={`block ${isActive ? 'font-semibold' : ''}`}
                     animate={isOverflowing && isHovered ? { x: [0, -50, 0] } : { x: 0 }}
                     transition={isOverflowing && isHovered ? { duration: 4, repeat: Infinity, ease: "linear", repeatType: "mirror" } : {}}
                 >
                     {text}
                 </motion.span>
                 {isOverflowing && !isHovered && !isActive && (
-                    <div className="fa-absolute fa-right-0 fa-top-0 fa-bottom-0 fa-w-6 fa-bg-gradient-to-l fa-from-white/0 fa-to-transparent"></div>
+                    <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white/0 to-transparent"></div>
                 )}
             </div>
         );
@@ -206,14 +206,14 @@ export default function SidebarItem({
             <li className={listItemClass}>
                 <button
                     onClick={() => !isCollapsed && setIsOpen(!isOpen)}
-                    className={`${linkBaseClass} ${isOpen || isActive ? 'fa-text-indigo-700 fa-bg-indigo-50 dark:fa-text-indigo-300 dark:fa-bg-indigo-900/20' : 'fa-text-slate-600 hover:fa-bg-slate-100 dark:fa-text-slate-400 dark:hover:fa-bg-slate-800/50'}`}
+                    className={`${linkBaseClass} ${isOpen || isActive ? 'text-indigo-700 bg-indigo-50 dark:text-indigo-300 dark:bg-indigo-900/20' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50'}`}
                     title={isCollapsed ? item.title : undefined}
                 >
-                    <div className={`fa-flex fa-items-center fa-gap-3 fa-overflow-hidden ${isCollapsed ? 'fa-justify-center fa-w-full' : 'fa-flex-1'}`}>
+                    <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
                         {item.icon && (
                             <Icon 
                                 icon={item.icon} 
-                                className={`fa-w-5 fa-h-5 fa-flex-shrink-0 ${isOpen || isActive ? 'fa-text-indigo-600 dark:fa-text-indigo-400' : 'fa-text-slate-500 dark:fa-text-slate-500'}`} 
+                                className={`w-5 h-5 flex-shrink-0 ${isOpen || isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-500'}`} 
                             />
                         )}
                         {!isCollapsed && <MarqueeText text={item.title} isActive={Boolean(isOpen || isActive)} />}
@@ -221,7 +221,7 @@ export default function SidebarItem({
                     {!isCollapsed && (
                         <Icon 
                             icon="heroicons:chevron-down" 
-                            className={`fa-w-4 fa-h-4 fa-flex-shrink-0 fa-ml-auto fa-transition-transform fa-duration-200 ${isOpen ? 'fa-rotate-180 fa-text-indigo-600' : 'fa-text-slate-400'}`} 
+                            className={`w-4 h-4 flex-shrink-0 ml-auto transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-600' : 'text-slate-400'}`} 
                         />
                     )}
                 </button>
@@ -233,7 +233,7 @@ export default function SidebarItem({
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="fa-overflow-hidden fa-mt-1 fa-space-y-0.5"
+                            className="overflow-hidden mt-1 space-y-0.5"
                         >
                             {item.children?.map(child => (
                                 <SidebarItem key={child.id} item={child} depth={depth + 1} urlPrefix={urlPrefix} isCollapsed={isCollapsed} />
@@ -255,24 +255,24 @@ export default function SidebarItem({
                     if (isSelfActive) e.preventDefault();
                 }}
             >
-                <div className={`fa-flex fa-items-center fa-gap-3 fa-overflow-hidden ${isCollapsed ? 'fa-justify-center fa-w-full' : 'fa-flex-1'}`}>
+                <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
                     {item.icon && (
                         <Icon 
                             icon={item.icon} 
-                            className={`fa-w-5 fa-h-5 fa-flex-shrink-0 ${isActive ? 'fa-text-white' : 'fa-text-slate-500 group-hover:fa-text-slate-700 dark:fa-text-slate-500 dark:group-hover:fa-text-slate-300'}`} 
+                            className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'}`} 
                         />
                     )}
                     {!isCollapsed && <MarqueeText text={item.title} isActive={isActive} />}
                 </div>
                 
                 {!isCollapsed && item.badge && (
-                    <span className={`fa-ml-auto fa-text-xs fa-font-medium fa-flex-shrink-0 fa-px-2 fa-py-0.5 fa-rounded-full ${isActive ? 'fa-bg-white/20 fa-text-white' : 'fa-bg-slate-100 fa-text-slate-600 dark:fa-bg-slate-700 dark:fa-text-slate-300'}`}>
+                    <span className={`ml-auto text-xs font-medium flex-shrink-0 px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
                         {item.badge}
                     </span>
                 )}
                 
                 {isCollapsed && item.badge && (
-                    <span className="fa-absolute fa-top-2 fa-right-2 fa-w-2 fa-h-2 fa-bg-red-500 fa-rounded-full"></span>
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
                 )}
             </Link>
         </li>

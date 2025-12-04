@@ -9,8 +9,7 @@ import InputLabel from '../../Components/InputLabel';
 import PrimaryButton from '../../Components/PrimaryButton';
 import TextInput from '../../Components/TextInput';
 import LogoDefault from '../../Components/LogoDefault';
-import styles from './Login.module.css'; 
-// Import helper yang sudah dibuat
+// import styles from './Login.module.css'; // Hapus import ini
 import { safeRoute } from '../../Utils/routeHelper';
 
 export default function Login({ status, canResetPassword }: { status?: string, canResetPassword?: boolean }) {
@@ -41,7 +40,13 @@ export default function Login({ status, canResetPassword }: { status?: string, c
     };
 
     return (
-        <div className={styles.loginContainer}>
+        // Ganti styles.loginContainer dengan class Tailwind langsung
+        <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-50 to-gray-200" 
+             style={{ 
+                 backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', 
+                 backgroundSize: '24px 24px' 
+             }}>
+            
             {/* Judul Halaman Dinamis: Nama App - Login */}
             <Head title={`${appName} - Login`} />
 
@@ -49,16 +54,19 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="fa-text-center fa-mb-6"
+                className="text-center mb-6"
             >
-                <div className="fa-flex fa-justify-center fa-mb-4">
-                    <LogoDefault />
+                <div className="flex justify-center mb-4">
+                    {/* Container Logo dengan styling inline untuk efek hover/transform jika diperlukan */}
+                    <div className="mx-auto h-14 w-14 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl shadow-lg flex items-center justify-center text-white mb-4 transform transition-transform duration-300 hover:scale-105 hover:rotate-3">
+                         <LogoDefault textClassName="hidden" />
+                    </div>
                 </div>
                 
-                <h2 className="fa-text-2xl fa-font-extrabold fa-text-gray-900 fa-tracking-tight">
+                <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
                     Selamat Datang Kembali
                 </h2>
-                <p className="fa-mt-2 fa-text-sm fa-text-gray-500">
+                <p className="mt-2 text-sm text-gray-500">
                     Silakan masuk ke {appName} untuk melanjutkan.
                 </p>
             </motion.div>
@@ -67,81 +75,82 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="fa-w-full fa-max-w-md fa-mb-4 fa-p-4 fa-bg-green-50 fa-border-l-4 fa-border-green-500 fa-rounded-r-md fa-shadow-sm"
+                    className="w-full max-w-md mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-r-md shadow-sm"
                 >
-                    <div className="fa-flex">
-                        <div className="fa-flex-shrink-0">
-                            <Icon icon="heroicons:check-circle" className="fa-h-5 fa-w-5 fa-text-green-400" />
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <Icon icon="heroicons:check-circle" className="h-5 w-5 text-green-400" />
                         </div>
-                        <div className="fa-ml-3">
-                            <p className="fa-text-sm fa-text-green-700">{status}</p>
+                        <div className="ml-3">
+                            <p className="text-sm text-green-700">{status}</p>
                         </div>
                     </div>
                 </motion.div>
             )}
 
+            {/* Login Card dengan styling langsung */}
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className={styles.loginCard}
+                className="w-full max-w-md mt-6 px-8 py-8 bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100 backdrop-blur-sm"
             >
-                <form onSubmit={submit} className="fa-space-y-6">
+                <form onSubmit={submit} className="space-y-6">
                     <div>
                         <InputLabel htmlFor="email" value="Email Address" />
-                        <div className="fa-relative">
-                            <div className="fa-absolute fa-inset-y-0 fa-left-0 fa-pl-3 fa-flex fa-items-center fa-pointer-events-none">
-                                <Icon icon="heroicons:envelope" className="fa-text-gray-400" />
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Icon icon="heroicons:envelope" className="text-gray-400" />
                             </div>
                             <TextInput
                                 id="email"
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="fa-mt-1 fa-pl-10"
+                                className="mt-1 pl-10"
                                 autoComplete="username"
                                 isFocused={true}
                                 placeholder="nama@perusahaan.com"
                                 onChange={(e) => setData('email', e.target.value)}
                             />
                         </div>
-                        <InputError message={errors.email} className="fa-mt-2" />
+                        <InputError message={errors.email} className="mt-2" />
                     </div>
 
                     <div>
                         <InputLabel htmlFor="password" value="Password" />
-                        <div className="fa-relative">
-                            <div className="fa-absolute fa-inset-y-0 fa-left-0 fa-pl-3 fa-flex fa-items-center fa-pointer-events-none">
-                                <Icon icon="heroicons:lock-closed" className="fa-text-gray-400" />
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <Icon icon="heroicons:lock-closed" className="text-gray-400" />
                             </div>
                             <TextInput
                                 id="password"
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="fa-mt-1 fa-pl-10"
+                                className="mt-1 pl-10"
                                 autoComplete="current-password"
                                 placeholder="••••••••"
                                 onChange={(e) => setData('password', e.target.value)}
                             />
                         </div>
-                        <InputError message={errors.password} className="fa-mt-2" />
+                        <InputError message={errors.password} className="mt-2" />
                     </div>
 
-                    <div className="fa-flex fa-items-center fa-justify-between">
-                        <label className="fa-flex fa-items-center fa-cursor-pointer">
+                    <div className="flex items-center justify-between">
+                        <label className="flex items-center cursor-pointer">
                             <Checkbox
                                 name="remember"
                                 checked={data.remember}
                                 onChange={(e) => setData('remember', e.target.checked)}
                             />
-                            <span className="fa-ml-2 fa-text-sm fa-text-gray-600 hover:fa-text-gray-900">Ingat saya</span>
+                            <span className="ml-2 text-sm text-gray-600 hover:text-gray-900">Ingat saya</span>
                         </label>
 
                         {canResetPassword && (
                             <a
                                 href={safeRoute('futurisme.password.request', `/${urlPrefix}/forgot-password`)}
-                                className="fa-text-sm fa-font-medium fa-text-indigo-600 hover:fa-text-indigo-500 fa-transition-colors"
+                                className="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
                             >
                                 Lupa password?
                             </a>
@@ -149,15 +158,15 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                     </div>
 
                     <div>
-                        <PrimaryButton className="fa-w-full fa-justify-center" disabled={processing}>
+                        <PrimaryButton className="w-full justify-center" disabled={processing}>
                             {processing ? (
-                                <span className="fa-flex fa-items-center">
-                                    <Icon icon="eos-icons:loading" className="fa-animate-spin fa-mr-2" />
+                                <span className="flex items-center">
+                                    <Icon icon="eos-icons:loading" className="animate-spin mr-2" />
                                     Memproses...
                                 </span>
                             ) : (
-                                <span className="fa-flex fa-items-center">
-                                    <Icon icon="heroicons:arrow-right-on-rectangle" className="fa-mr-2" />
+                                <span className="flex items-center">
+                                    <Icon icon="heroicons:arrow-right-on-rectangle" className="mr-2" />
                                     Masuk ke Dashboard
                                 </span>
                             )}
@@ -165,13 +174,13 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                     </div>
 
                     {canRegister && (
-                        <div className="fa-flex fa-items-center fa-justify-center fa-mt-4 fa-pt-2 fa-border-t fa-border-gray-100">
-                            <span className="fa-text-sm fa-text-gray-600 fa-mr-1">Belum punya akun?</span>
+                        <div className="flex items-center justify-center mt-4 pt-2 border-t border-gray-100">
+                            <span className="text-sm text-gray-600 mr-1">Belum punya akun?</span>
                             <a 
                                 href={safeRoute('futurisme.register', `/${urlPrefix}/register`)}
-                                className="fa-text-sm fa-font-medium fa-text-indigo-600 hover:fa-text-indigo-500 hover:fa-underline fa-transition-colors fa-flex fa-items-center"
+                                className="text-sm font-medium text-indigo-600 hover:text-indigo-500 hover:underline transition-colors flex items-center"
                             >
-                                <Icon icon="heroicons:user-plus" className="fa-mr-1 fa-w-4 fa-h-4" />
+                                <Icon icon="heroicons:user-plus" className="mr-1 w-4 h-4" />
                                 Daftar sekarang
                             </a>
                         </div>
@@ -183,9 +192,9 @@ export default function Login({ status, canResetPassword }: { status?: string, c
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
-                className="fa-mt-8 fa-text-center"
+                className="mt-8 text-center"
             >
-                <p className="fa-text-xs fa-text-gray-400">
+                <p className="text-xs text-gray-400">
                     &copy; {new Date().getFullYear()} {appName}. Secured & Encrypted.
                 </p>
             </motion.div>

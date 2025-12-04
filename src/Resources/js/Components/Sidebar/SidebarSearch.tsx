@@ -7,25 +7,25 @@ interface SidebarSearchProps {
 export default function SidebarSearch({ isCollapsed }: SidebarSearchProps) {
     if (isCollapsed) {
         return (
-            <div className="fa-px-2 fa-mb-4 fa-flex fa-justify-center">
-                <button className="fa-p-2.5 fa-rounded-lg fa-text-slate-400 hover:fa-bg-slate-200 dark:hover:fa-bg-slate-800 hover:fa-text-slate-600 dark:hover:fa-text-slate-200 fa-transition-colors">
-                    <Icon icon="heroicons:magnifying-glass" className="fa-w-5 fa-h-5" />
+            <div className="px-2 mb-4 flex justify-center">
+                <button className="p-2.5 rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                    <Icon icon="heroicons:magnifying-glass" className="w-5 h-5" />
                 </button>
             </div>
         );
     }
 
     return (
-        <div className="fa-px-5 fa-mb-4">
-            <div className="fa-relative fa-group">
+        <div className="px-5 mb-4">
+            <div className="relative group">
                 <Icon 
                     icon="heroicons:magnifying-glass" 
-                    className="fa-absolute fa-left-3 fa-top-1/2 -fa-translate-y-1/2 fa-text-slate-400 group-hover:fa-text-slate-600 dark:group-hover:fa-text-slate-300 fa-w-5 fa-h-5 fa-transition-colors"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 w-5 h-5 transition-colors"
                 />
                 <input 
                     type="text" 
                     placeholder="Quick search" 
-                    className="fa-w-full fa-pl-10 fa-pr-4 fa-py-2 fa-bg-transparent fa-border-none focus:fa-ring-0 fa-text-sm fa-text-slate-600 dark:fa-text-slate-300 placeholder-slate-400 dark:placeholder-slate-500 fa-font-medium"
+                    className="w-full pl-10 pr-4 py-2 bg-transparent border-none focus:ring-0 text-sm text-slate-600 dark:text-slate-300 placeholder-slate-400 dark:placeholder-slate-500 font-medium"
                 />
             </div>
         </div>

@@ -1,7 +1,7 @@
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { defaultMenus, bottomMenus } from './dummy';
 import SidebarItem, { SidebarItemType } from './SidebarItem';
 import SidebarHeader from './SidebarHeader';
@@ -41,25 +41,15 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isUsingDummy, setIsUsingDummy] = useState(false);
 
-    // --- LOG DATA UNTUK DEBUGGING ---
-    console.log('[Sidebar] Data menus dari props:', menus);
-    // ---------------------------------
-
     // Tentukan Menu Utama yang akan dirender
-    // Jika props 'menus' kosong (array kosong), gunakan 'defaultMenus' dari dummy.ts
-    const menuItems = menus && menus.length > 0 ? menus : defaultMenus;
+    // Jika props 'menus' kosong, gunakan 'defaultMenus' dari dummy.ts
+    const menuItems = menus.length > 0 ? menus : defaultMenus;
 
     useEffect(() => {
-        if (!menus || menus.length === 0) {
-            console.warn('[Sidebar] Database menu kosong. Menggunakan dummy data.');
-            setIsUsingDummy(true);
-        } else {
-            setIsUsingDummy(false);
-        }
+        if (menus.length === 0) setIsUsingDummy(true);
     }, [menus]);
 
     // Memisahkan Quick Links (Inbox/Notif) dari Menu Utama
-    // Asumsi: Quick Links adalah item tanpa 'header' dan tanpa 'children' di awal array
     const quickLinks = menuItems.filter(item => !item.header && !item.children && ['Inbox', 'Notifications'].includes(item.title));
     
     // Main Menu adalah sisanya
@@ -68,18 +58,18 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
     return (
         <aside 
             className={`
-                fa-bg-[#F7F8FA] dark:fa-bg-slate-900 fa-border-r fa-border-slate-200 dark:fa-border-slate-800 fa-flex fa-flex-col fa-flex-shrink-0 fa-h-screen fa-sticky fa-top-0 fa-transition-all fa-duration-300
-                ${isCollapsed ? 'fa-w-20' : 'fa-w-72'} 
+                bg-[#F7F8FA] dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col flex-shrink-0 h-screen sticky top-0 transition-all duration-300
+                ${isCollapsed ? 'w-20' : 'w-72'} 
                 ${className}
             `}
         >
             <SidebarHeader isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
 
             {isCollapsed && (
-                <div className="fa-flex fa-justify-center fa-mb-4">
+                <div className="flex justify-center mb-4">
                     <button 
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="fa-p-2 fa-rounded-md hover:fa-bg-slate-200 dark:hover:fa-bg-slate-800 fa-text-slate-400 hover:fa-text-slate-600 dark:hover:fa-text-slate-200 fa-transition-colors"
+                        className="p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                     >
                         <Icon icon="heroicons:chevron-double-right" width="20" height="20" />
                     </button>
@@ -90,23 +80,23 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                 <motion.div 
                     initial={{ opacity: 0, y: -10 }} 
                     animate={{ opacity: 1, y: 0 }}
-                    className="fa-mx-4 fa-mb-4 fa-px-3 fa-py-2 fa-bg-amber-50 dark:fa-bg-amber-900/30 fa-border fa-border-amber-200 dark:fa-border-amber-800 fa-rounded-lg fa-flex fa-items-start fa-gap-2"
+                    className="mx-4 mb-4 px-3 py-2 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg flex items-start gap-2"
                 >
-                    <Icon icon="heroicons:exclamation-triangle" className="fa-w-4 fa-h-4 fa-text-amber-600 dark:fa-text-amber-500 fa-mt-0.5" />
+                    <Icon icon="heroicons:exclamation-triangle" className="w-4 h-4 text-amber-600 dark:text-amber-500 mt-0.5" />
                     <div>
-                        <p className="fa-text-xs fa-text-amber-700 dark:fa-text-amber-400 fa-font-medium">Using Dummy Data</p>
+                        <p className="text-xs text-amber-700 dark:text-amber-400 font-medium">Using Dummy Data</p>
                     </div>
                 </motion.div>
             )}
 
             <SidebarSearch isCollapsed={isCollapsed} />
 
-            <div className={`fa-flex-1 fa-overflow-y-auto custom-scrollbar fa-pb-6 ${isCollapsed ? 'fa-px-2' : 'fa-px-3'}`}>
+            <div className={`flex-1 overflow-y-auto custom-scrollbar pb-6 ${isCollapsed ? 'px-2' : 'px-3'}`}>
                 
                 {/* 1. Quick Links Section */}
                 {quickLinks.length > 0 && (
                     <motion.ul 
-                        className="fa-space-y-0.5 fa-mb-6"
+                        className="space-y-0.5 mb-6"
                         variants={listVariants}
                         initial="hidden"
                         animate="show"
@@ -121,27 +111,29 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
 
                 {/* 2. Main Menu Section */}
                 <motion.ul 
-                    className="fa-space-y-0.5"
+                    className="space-y-0.5"
                     variants={listVariants}
                     initial="hidden"
                     animate="show"
                 >
                     {mainMenus.map((item, index) => {
+                        // Jika item adalah HEADER Group
                         if (item.header) {
                             return (
-                                <motion.li key={item.id} className="fa-mt-6 first:fa-mt-0" variants={itemVariants}>
+                                <motion.li key={item.id} className="mt-6 first:mt-0" variants={itemVariants}>
                                     {!isCollapsed ? (
-                                        <div className="fa-px-4 fa-mb-2">
-                                            <p className="fa-text-xs fa-font-bold fa-text-slate-400 dark:fa-text-slate-500 fa-uppercase fa-tracking-wider">
+                                        <div className="px-4 mb-2">
+                                            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                                                 {item.header}
                                             </p>
                                         </div>
                                     ) : (
-                                        <div className="fa-my-4 fa-mx-2 fa-h-px fa-bg-slate-200 dark:fa-bg-slate-700"></div>
+                                        <div className="my-4 mx-2 h-px bg-slate-200 dark:bg-slate-700"></div>
                                     )}
                                     
+                                    {/* Render Children dari Group Header */}
                                     {item.children && (
-                                        <ul className="fa-space-y-0.5">
+                                        <ul className="space-y-0.5">
                                             {item.children.map(child => (
                                                 <motion.div key={child.id} variants={itemVariants}>
                                                     <SidebarItem item={child} urlPrefix={urlPrefix} isCollapsed={isCollapsed} />
@@ -153,6 +145,7 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                             );
                         }
                         
+                        // Render Item Biasa (yang bukan header & bukan quick link)
                         return (
                             <motion.li key={item.id} variants={itemVariants}>
                                 <SidebarItem item={item} urlPrefix={urlPrefix} isCollapsed={isCollapsed} />
@@ -162,7 +155,7 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                 </motion.ul>
 
                 <motion.div 
-                    className="fa-mx-4 fa-mt-8"
+                    className="mx-4 mt-8"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 }}
@@ -170,8 +163,9 @@ export default function Sidebar({ menus = [], className = '' }: SidebarProps) {
                     <PromoCard isCollapsed={isCollapsed} />
                 </motion.div>
 
+                {/* Bottom Menus (Static / Footer Menus) */}
                 <motion.ul 
-                    className={`fa-space-y-0.5 fa-mt-6 fa-pt-4 ${isCollapsed ? 'fa-border-t-0' : 'fa-border-t fa-border-slate-200/60 dark:fa-border-slate-800 fa-mx-2'}`}
+                    className={`space-y-0.5 mt-6 pt-4 ${isCollapsed ? 'border-t-0' : 'border-t border-slate-200/60 dark:border-slate-800 mx-2'}`}
                     variants={listVariants}
                     initial="hidden"
                     animate="show"

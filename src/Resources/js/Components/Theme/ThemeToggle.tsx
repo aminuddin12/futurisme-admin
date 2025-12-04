@@ -27,16 +27,16 @@ export default function ThemeToggle() {
     }, []);
 
     return (
-        <div className="fa-relative" ref={menuRef}>
+        <div className="relative" ref={menuRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    fa-p-2 fa-rounded-full fa-transition-all fa-border
+                    p-2 rounded-full transition-all border
                     ${isOpen 
-                        // PERBAIKAN: Pastikan semua class menggunakan prefix 'fa-' dengan benar
-                        // Varian seperti dark: dan hover: harus diikuti prefix 'fa-'
-                        ? 'fa-bg-slate-100 dark:fa-bg-slate-800 fa-text-indigo-600 dark:fa-text-indigo-400 fa-border-indigo-100 dark:fa-border-indigo-900' 
-                        : 'fa-text-slate-500 hover:fa-bg-slate-100 dark:hover:fa-bg-slate-800 fa-border-transparent'}
+                        // PERBAIKAN: Pastikan semua class menggunakan prefix '' dengan benar
+                        // Varian seperti dark: dan hover: harus diikuti prefix ''
+                        ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-indigo-100 dark:border-indigo-900' 
+                        : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent'}
                 `}
                 title="Ubah Tema"
             >
@@ -50,8 +50,8 @@ export default function ThemeToggle() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.1 }}
-                        // PERBAIKAN: Tambahkan 'fa-' setelah 'dark:' pada semua class container dropdown
-                        className="fa-absolute fa-right-0 fa-mt-2 fa-w-36 fa-bg-white dark:fa-bg-slate-800 fa-rounded-xl fa-shadow-lg fa-border fa-border-slate-200 dark:fa-border-slate-700 fa-overflow-hidden fa-z-50 fa-py-1"
+                        // PERBAIKAN: Tambahkan '' setelah 'dark:' pada semua class container dropdown
+                        className="absolute right-0 mt-2 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden z-50 py-1"
                     >
                         {[
                             { value: 'light', label: 'Light', icon: 'solar:sun-bold' },
@@ -65,14 +65,14 @@ export default function ThemeToggle() {
                                     setIsOpen(false);
                                 }}
                                 className={`
-                                    fa-w-full fa-flex fa-items-center fa-gap-3 fa-px-4 fa-py-2 fa-text-sm fa-transition-colors
+                                    w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors
                                     ${theme === item.value 
-                                        // PERBAIKAN: Tambahkan 'fa-' setelah 'dark:' dan 'hover:' pada item dropdown
-                                        ? 'fa-text-indigo-600 dark:fa-text-indigo-400 fa-bg-indigo-50 dark:fa-bg-indigo-900/20' 
-                                        : 'fa-text-slate-600 dark:fa-text-slate-300 hover:fa-bg-slate-50 dark:hover:fa-bg-slate-700/50'}
+                                        // PERBAIKAN: Tambahkan '' setelah 'dark:' dan 'hover:' pada item dropdown
+                                        ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20' 
+                                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}
                                 `}
                             >
-                                <Icon icon={item.icon} className="fa-w-4 fa-h-4" />
+                                <Icon icon={item.icon} className="w-4 h-4" />
                                 <span>{item.label}</span>
                             </button>
                         ))}
