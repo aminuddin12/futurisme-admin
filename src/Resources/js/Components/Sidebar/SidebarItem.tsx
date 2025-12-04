@@ -148,7 +148,7 @@ export default function SidebarItem({
 
     const linkBaseClass = `
         group flex items-center w-full py-2.5 text-sm font-medium rounded-lg transition-all duration-200
-        ${paddingLeftClass} ${justifyClass} pr-3
+        ${paddingLeftClass} ${justifyClass} pr-1
         ${disableClick}
     `;
 
@@ -182,7 +182,7 @@ export default function SidebarItem({
         return (
             <div 
                 ref={containerRef}
-                className="flex-1 overflow-hidden whitespace-nowrap relative mr-2"
+                className="flex overflow-hidden whitespace-nowrap relative mr-1"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
             >
@@ -195,7 +195,7 @@ export default function SidebarItem({
                     {text}
                 </motion.span>
                 {isOverflowing && !isHovered && !isActive && (
-                    <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white/0 to-transparent"></div>
+                    <div className="absolute right-0 top-0 bottom-0 w-6 bg-linear-to-l from-white/0 to-transparent"></div>
                 )}
             </div>
         );
@@ -209,11 +209,11 @@ export default function SidebarItem({
                     className={`${linkBaseClass} ${isOpen || isActive ? 'text-indigo-700 bg-indigo-50 dark:text-indigo-300 dark:bg-indigo-900/20' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50'}`}
                     title={isCollapsed ? item.title : undefined}
                 >
-                    <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
+                    <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex'}`}>
                         {item.icon && (
                             <Icon 
                                 icon={item.icon} 
-                                className={`w-5 h-5 flex-shrink-0 ${isOpen || isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-500'}`} 
+                                className={`w-5 h-5 shrink-0 ${isOpen || isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-500'}`} 
                             />
                         )}
                         {!isCollapsed && <MarqueeText text={item.title} isActive={Boolean(isOpen || isActive)} />}
@@ -221,7 +221,7 @@ export default function SidebarItem({
                     {!isCollapsed && (
                         <Icon 
                             icon="heroicons:chevron-down" 
-                            className={`w-4 h-4 flex-shrink-0 ml-auto transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-600' : 'text-slate-400'}`} 
+                            className={`w-4 h-4 shrink-0 ml-auto transition-transform duration-200 ${isOpen ? 'rotate-180 text-indigo-600' : 'text-slate-400'}`} 
                         />
                     )}
                 </button>
@@ -255,18 +255,18 @@ export default function SidebarItem({
                     if (isSelfActive) e.preventDefault();
                 }}
             >
-                <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1'}`}>
+                <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex'}`}>
                     {item.icon && (
                         <Icon 
                             icon={item.icon} 
-                            className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'}`} 
+                            className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'}`} 
                         />
                     )}
                     {!isCollapsed && <MarqueeText text={item.title} isActive={isActive} />}
                 </div>
                 
                 {!isCollapsed && item.badge && (
-                    <span className={`ml-auto text-xs font-medium flex-shrink-0 px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
+                    <span className={`ml-auto text-xs font-medium shrink-0 px-2 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
                         {item.badge}
                     </span>
                 )}
