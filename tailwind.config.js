@@ -1,7 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    // Prefix penting agar class tidak bentrok dengan aplikasi utama
-    // Contoh penggunaan: class="fa-bg-red-500 fa-p-4"
+    darkMode: 'class',
     prefix: 'fa-',
     content: [
         './src/Resources/**/*.blade.php',

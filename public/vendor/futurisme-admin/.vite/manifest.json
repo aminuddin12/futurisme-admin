@@ -60,7 +60,7 @@
     ]
   },
   "src/Resources/css/app.css": {
-    "file": "assets/app-DU0MoDUN.css",
+    "file": "assets/app-BbqB_aZq.css",
     "src": "src/Resources/css/app.css",
     "isEntry": true
   },
@@ -110,7 +110,7 @@
     ]
   },
   "src/Resources/js/Pages/Dashboard.tsx": {
-    "file": "assets/Dashboard-CKLJcz06.js",
+    "file": "assets/Dashboard-NX25Tucv.js",
     "name": "Dashboard",
     "src": "src/Resources/js/Pages/Dashboard.tsx",
     "isDynamicEntry": true,
@@ -118,10 +118,12 @@
       "_vendor-react-mIUCV8oU.js",
       "_routeHelper-BKmTF61O.js",
       "_vendor-ui-BgyfRaQr.js",
+      "src/Resources/js/app.tsx",
       "_vendor-B43XZ4h0.js"
     ],
     "css": [
-      "assets/Dashboard-BqZlEZJw.css"
+      "assets/Dashboard-BqZlEZJw.css",
+      "assets/app-BbqB_aZq.css"
     ]
   },
   "src/Resources/js/Pages/Setup/AdminAccount.tsx": {
@@ -152,7 +154,7 @@
     ]
   },
   "src/Resources/js/app.tsx": {
-    "file": "assets/app-k113ZhEd.js",
+    "file": "assets/app-BL8bZbvB.js",
     "name": "app",
     "src": "src/Resources/js/app.tsx",
     "isEntry": true,
@@ -169,7 +171,7 @@
       "src/Resources/js/Pages/Setup/Configuration.tsx"
     ],
     "css": [
-      "assets/app-DU0MoDUN.css"
+      "assets/app-BbqB_aZq.css"
     ]
   }
 }

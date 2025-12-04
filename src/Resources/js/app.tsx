@@ -4,6 +4,8 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 // Import Ziggy
 import { route as ziggyRoute } from 'ziggy-js';
+// Import ThemeProvider
+import { ThemeProvider } from './Components/Theme/ThemeContext';
 
 const appName = 'Futurisme Admin';
 
@@ -20,27 +22,16 @@ createInertiaApp({
         return resolvePageComponent(path, pages);
     },
     setup({ el, App, props }) {
-        // Ambil Ziggy Config dari Props
         // @ts-ignore
         const ziggyConfig = props.initialPage.props.ziggy;
-        
-        // LOG PROPS UNTUK DEBUGGING
-        console.log('[Futurisme] App Initialized. Props:', props.initialPage.props);
 
         // Setup Global Route Helper
         if (typeof window !== 'undefined') {
             // @ts-ignore
             window.route = (name, params, absolute, config) => {
-                // Gunakan config dari props sebagai prioritas utama
                 // @ts-ignore
                 const configToUse = config || ziggyConfig || window.Ziggy;
-
-                // Jika routes kosong/tidak ada, jangan panggil ziggyRoute (karena akan error)
-                // Kembalikan string kosong atau nama route sebagai fallback
                 if (!configToUse || !configToUse.routes || Object.keys(configToUse.routes).length === 0) {
-                    // console.warn('[Futurisme] Ziggy routes missing. Using manual fallback.');
-                    
-                    // Mocking behavior sederhana untuk .current() agar tidak crash
                     if (!name) {
                          return { 
                              current: () => undefined,
@@ -56,6 +47,10 @@ createInertiaApp({
         }
 
         const root = createRoot(el);
-        root.render(<App {...props} />);
+        root.render(
+            <ThemeProvider defaultTheme="system" storageKey="futurisme-theme">
+                <App {...props} />
+            </ThemeProvider>
+        );
     },
 });
