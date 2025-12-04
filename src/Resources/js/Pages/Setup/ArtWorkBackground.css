@@ -1,0 +1,35 @@
+.artwork-container {
+    background-color: #0f172a;
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+    position: relative;
+    overflow: hidden;
+}
+
+.artwork-mesh {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: 
+        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15), transparent 60%),
+        radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15), transparent 40%);
+    filter: blur(60px);
+    animation: meshMove 20s infinite alternate ease-in-out;
+    opacity: 0.8;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes meshMove {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(5deg) scale(1.1); }
+    100% { transform: rotate(-5deg) scale(1); }
+}

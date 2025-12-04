@@ -72,16 +72,16 @@ export default function LogoDefault({
         <div className={`  flex   items-center   justify-center   gap-3 ${className}`} {...props}>
             <Link href={href} className="  flex   items-center   gap-3   group   no-underline">
                 {/* Bagian Icon */}
-                <div className="  transition-transform   duration-300 group-hover:  rotate-12">
+                <div className="transition-transform duration-300 group-hover:rotate-12">
                     <LogoSVG />
                 </div>
 
                 {/* Bagian Teks Logo (2 Warna) */}
-                <div className={`  flex   flex-col   leading-none ${textClassName}`}>
-                    <span className="  text-xl   font-bold   text-gray-800   tracking-tight group-hover:  text-indigo-700   transition-colors">
+                <div className={`flex flex-col leading-none ${textClassName}`}>
+                    <span className="text-xl font-bold text-gray-800 dark:text-white tracking-tight group-hover:text-indigo-700 transition-colors">
                         Futurisme
                     </span>
-                    <span className="  text-sm   font-medium   text-indigo-600   tracking-widest   uppercase">
+                    <span className="text-sm font-medium text-indigo-600 dark:text-gray-400 tracking-widest uppercase">
                         Admin Panel
                     </span>
                 </div>

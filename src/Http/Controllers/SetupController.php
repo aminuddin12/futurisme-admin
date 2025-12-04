@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeSetting;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeAdmin;
+use Aminuddin12\FuturismeAdmin\Models\FuturismeModule;
 use Aminuddin12\FuturismeAdmin\Helpers\EnvWriter;
 use Illuminate\Support\Facades\Hash;
 
@@ -14,13 +15,26 @@ class SetupController extends FuturismeBaseController
     // STEP 1: Halaman Konfigurasi
     public function viewConfig()
     {
-        // Jika config sudah ada, langsung lempar ke step 2 (Create Admin)
-        if (FuturismeSetting::where('key', 'site_name')->exists() || env('FUTURISME_SITE_NAME')) {
+        // Ambil daftar modul yang belum dikonfigurasi (data is NULL)
+        $pendingModules = FuturismeModule::whereNull('data')->get();
+
+        // PERBAIKAN: Cek value dari setting, bukan hanya eksistensi row
+        $siteNameSetting = FuturismeSetting::where('key', 'site_name')->first();
+        
+        // Cek apakah konfigurasi dasar sudah diisi (value tidak null/empty)
+        $basicSettingsConfigured = ($siteNameSetting && !empty($siteNameSetting->value)) || env('FUTURISME_SITE_NAME');
+        
+        // Jika Config Dasar SUDAH diisi DAN TIDAK ADA modul pending, baru lanjut ke Step 2
+        if ($basicSettingsConfigured && $pendingModules->isEmpty()) {
             return redirect()->route('futurisme.setup.admin');
         }
 
+        $settings = \Aminuddin12\FuturismeAdmin\Models\FuturismeSetting::orderBy('by_module')->orderBy('group')->get();
+
         return Inertia::render('Setup/Configuration', [
             'current_php_version' => phpversion(),
+            'pending_modules' => $pendingModules,
+            'settings' => $settings,
         ]);
     }
 
@@ -34,7 +48,7 @@ class SetupController extends FuturismeBaseController
             'theme_color' => 'required|string',
         ]);
 
-        // 1. Simpan ke Database (Prioritas Utama untuk runtime)
+        // 1. Simpan Settings ke Database
         $settings = [
             'site_name' => $data['site_name'],
             'url_prefix' => $data['url_prefix'],
@@ -57,13 +71,27 @@ class SetupController extends FuturismeBaseController
                 'FUTURISME_AUTH_CAN_REGISTER' => $data['can_register'],
                 'FUTURISME_THEME_COLOR' => $data['theme_color'],
             ]);
-        } catch (\Exception $e) {
-            // Silent fail jika permission denied, karena sudah tersimpan di DB
+        } catch (\Exception $e) {}
+
+        $coreModule = FuturismeModule::where('plugin', 'aminuddin12/futurisme-admin')->first();
+        if ($coreModule) {
+            $coreModule->update([
+                'data' => [
+                    'configured_at' => now()->toDateTimeString(),
+                    'settings' => $settings 
+                ],
+                'activated_at' => now()
+            ]);
         }
 
         // Clear cache config agar prefix route baru terbaca (penting!)
         \Illuminate\Support\Facades\Artisan::call('config:clear');
         \Illuminate\Support\Facades\Artisan::call('route:clear');
+
+        if (FuturismeModule::whereNull('data')->exists()) {
+            return redirect()->route('futurisme.setup.config')
+                ->with('status', 'Main config saved. Please configure remaining modules.');
+        }
 
         return redirect()->route('futurisme.setup.admin');
     }

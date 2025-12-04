@@ -5,27 +5,40 @@ namespace Aminuddin12\FuturismeAdmin\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeSetting;
+use Aminuddin12\FuturismeAdmin\Models\FuturismeModule;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Schema;
 
 class EnsureSetupIsCompleted
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // PENTING: Jangan jalankan cek setup pada rute-rute ini untuk mencegah loop
+        // Bypass untuk rute setup dan asset
         if ($request->is('fu-settings*') || $request->is('livewire*') || $request->is('api*')) {
             return $next($request);
         }
 
-        // Cek apakah tabel settings ada dan memiliki konfigurasi dasar
+        // 1. Cek Konfigurasi Dasar (Site Name)
         try {
-            // Gunakan cache atau session helper jika query ini terlalu berat di setiap request
-            $isConfigured = FuturismeSetting::where('key', 'site_name')->exists();
+            $setting = FuturismeSetting::where('key', 'site_name')->first();
+            $isConfigured = ($setting && !empty($setting->value)) || env('FUTURISME_SITE_NAME');
+            
         } catch (\Exception $e) {
             $isConfigured = false;
         }
 
-        // Jika belum setup, redirect ke wizard
-        if (! $isConfigured) {
+        // 2. Cek Apakah ada Modul yang "Pending" (kolom data masih NULL)
+        $hasPendingModules = false;
+        try {
+            if (Schema::hasTable('futurisme_modules')) {
+                $hasPendingModules = FuturismeModule::whereNull('data')->exists();
+            }
+        } catch (\Exception $e) {
+            // Silent fail
+        }
+
+        // Jika belum dikonfigurasi ATAU ada modul baru yang belum disetup
+        if (! $isConfigured || $hasPendingModules) {
             return redirect()->route('futurisme.setup.config');
         }
 

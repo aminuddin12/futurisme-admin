@@ -12,6 +12,8 @@ class FuturismeSetting extends Model
         'key',
         'value',
         'type',
-        'group'
+        'group',
+        'form_type',
+        'by_module',
     ];
 }

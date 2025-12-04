@@ -14,6 +14,8 @@ return new class extends Migration
             $table->text('value')->nullable(); // Disimpan bisa dalam bentuk string atau JSON
             $table->string('type')->default('string'); // string, boolean, json, integer
             $table->string('group')->default('general'); // Untuk pengelompokan di UI
+            $table->string('form_type')->default('text');
+            $table->string('by_module')->nullable()->index(); 
             $table->timestamps();
         });
     }

@@ -3,6 +3,8 @@
 namespace Aminuddin12\FuturismeAdmin\Console\Commands;
 
 use Illuminate\Console\Command;
+use Aminuddin12\FuturismeAdmin\Models\FuturismeModule;
+use Illuminate\Support\Facades\DB;
 
 class InstallFuturismeAdmin extends Command
 {
@@ -47,6 +49,8 @@ class InstallFuturismeAdmin extends Command
         $this->info('⚡ Running database migrations...');
         $this->call('migrate');
 
+        $this->registerSelfAsModule();
+
         // BARU: Jalankan Seeder
         $this->info('🌱 Seeding default data...');
         $this->call('db:seed', [
@@ -55,13 +59,56 @@ class InstallFuturismeAdmin extends Command
 
         // 6. Clear Caches
         $this->info('🧹 Clearing caches...');
+        $this->callSilent('optimize:clear');
         $this->callSilent('config:clear');
         $this->callSilent('route:clear');
         $this->callSilent('view:clear'); // Penting agar view baru terbaca
 
         $this->newLine();
         $this->info('🎉 Futurisme Admin installed successfully!');
-        $this->line('   Admin URL: /' . config('fu-admin.url_prefix', 'admin'));
+        // URL Setup Awal
+        $this->warn('⚠️  ACTION REQUIRED:');
+        $this->line('   Please configure your admin panel by visiting:');
+        $this->line('   👉 ' . url('/fu-settings'));
+    }
+
+    protected function registerSelfAsModule()
+    {
+        $this->info('📦 Registering Futurisme Admin package...');
+
+        try {
+            // Path ke composer.json paket ini (naik 3 level dari folder Commands)
+            $composerPath = __DIR__ . '/../../../composer.json';
+            
+            if (!file_exists($composerPath)) {
+                $this->error('   ❌ Could not find composer.json for Futurisme Admin.');
+                return;
+            }
+
+            $composer = json_decode(file_get_contents($composerPath), true);
+            
+            // Simpan ke database
+            // Kita set 'data' menjadi NULL untuk menandakan "Belum Dikonfigurasi"
+            FuturismeModule::updateOrCreate(
+                ['plugin' => $composer['name']], 
+                [
+                    'name' => 'Futurisme Admin Panel',
+                    'description' => $composer['description'] ?? 'Core admin panel package',
+                    'version' => '1.0.0', // Atau ambil dari tag git jika memungkinkan
+                    'checksum' => md5_file($composerPath),
+                    'dependencies' => $composer['require'] ?? [],
+                    'data' => null, // PENTING: Dikosongi sebagai tanda perlu setup
+                    'status' => 'active',
+                    'is_core' => true,
+                    'installed_at' => now(),
+                ]
+            );
+
+            $this->info('   ✅ Package registered in system ecosystem.');
+
+        } catch (\Exception $e) {
+            $this->error('   ❌ Failed to register module: ' . $e->getMessage());
+        }
     }
 
     protected function ensureZiggyIsInstalled()

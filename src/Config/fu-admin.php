@@ -3,24 +3,19 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Identitas Situs
+    | Identitas Situs (General)
     |--------------------------------------------------------------------------
-    |
-    | Pengaturan dasar untuk nama dan deskripsi yang akan muncul di
-    | halaman login dan dashboard admin.
-    |
     */
     'site_name' => env('FUTURISME_SITE_NAME', 'Futurisme Admin'),
     'site_description' => env('FUTURISME_SITE_DESCRIPTION', 'The Next Gen Admin Panel'),
+    'site_url' => env('APP_URL', 'http://localhost'),
+    'locale' => env('APP_LOCALE', 'id'),
+    'logo_url' => env('FUTURISME_LOGO_URL', null), // Bisa null jika pakai default package
 
     /*
     |--------------------------------------------------------------------------
-    | Routing Configuration
+    | Routing Configuration (System)
     |--------------------------------------------------------------------------
-    |
-    | Prefix URL untuk mengakses halaman admin.
-    | Contoh: jika diisi 'panel', maka url menjadi domain.com/panel
-    |
     */
     'url_prefix' => env('FUTURISME_URL_PREFIX', 'admin'),
 
@@ -28,9 +23,6 @@ return [
     |--------------------------------------------------------------------------
     | Authentication Settings
     |--------------------------------------------------------------------------
-    |
-    | Mengatur fitur pendaftaran, reset password, dan metode verifikasi.
-    |
     */
     'auth' => [
         'can_register' => env('FUTURISME_AUTH_CAN_REGISTER', false),
@@ -38,9 +30,9 @@ return [
         
         'verification' => [
             'email' => env('FUTURISME_AUTH_VERIFY_EMAIL', true),
-            'phone' => env('FUTURISME_AUTH_VERIFY_PHONE', false),       // SMS Gateway
-            'whatsapp' => env('FUTURISME_AUTH_VERIFY_WHATSAPP', false), // WA Gateway
-            'social_media' => env('FUTURISME_AUTH_VERIFY_SOCIAL', false), // OAuth (Google, etc)
+            'phone' => env('FUTURISME_AUTH_VERIFY_PHONE', false),
+            'whatsapp' => env('FUTURISME_AUTH_VERIFY_WHATSAPP', false),
+            'social_media' => env('FUTURISME_AUTH_VERIFY_SOCIAL', false),
         ],
     ],
 
@@ -48,26 +40,20 @@ return [
     |--------------------------------------------------------------------------
     | Module & Features
     |--------------------------------------------------------------------------
-    |
-    | Mengaktifkan atau menonaktifkan fitur modul besar.
-    |
     */
     'modules' => [
-        'team' => env('FUTURISME_MODULE_TEAM', false),           // Manajemen Tim/Kolaborasi
-        'corporate' => env('FUTURISME_MODULE_CORPORATE', false), // Mode Multi-tenant/Cabang
-        'api_tokens' => env('FUTURISME_MODULE_API_TOKENS', true),// Manajemen API Token (Sanctum)
+        'team' => env('FUTURISME_MODULE_TEAM', false),
+        'corporate' => env('FUTURISME_MODULE_CORPORATE', false),
+        'api_tokens' => env('FUTURISME_MODULE_API_TOKENS', true),
     ],
 
     /*
     |--------------------------------------------------------------------------
     | Appearance
     |--------------------------------------------------------------------------
-    |
-    | Kustomisasi tampilan default panel admin.
-    |
     */
     'theme' => [
         'dark_mode' => env('FUTURISME_THEME_DARK_MODE', true),
-        'color_scheme' => env('FUTURISME_THEME_COLOR', 'indigo'), // Pilihan: indigo, red, blue, green, amber
+        'color_scheme' => env('FUTURISME_THEME_COLOR', 'indigo'),
     ],
 ];

@@ -11,6 +11,8 @@ class FuturismeDatabaseSeeder extends Seeder
 {
     public function run()
     {
+
+        $this->call(FuturismeSettingsSeeder::class);
         // 1. Create Permissions Dasar
         $permissions = [
             'view dashboard',

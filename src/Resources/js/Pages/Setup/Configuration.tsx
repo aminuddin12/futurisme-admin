@@ -1,151 +1,205 @@
-import { Head, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { useState, useMemo } from 'react';
+import { useForm, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
-// import styles from '../Auth/Login.module.css'; // HAPUS baris ini
+import { motion, AnimatePresence } from 'framer-motion';
+import FaPublicLayout from '../../Layouts/FaPublicLayout';
+import DynamicSettingInput from '../../Components/Settings/DynamicSettingInput';
 import PrimaryButton from '../../Components/PrimaryButton';
-import TextInput from '../../Components/TextInput';
-import InputLabel from '../../Components/InputLabel';
-import InputError from '../../Components/InputError';
-import Checkbox from '../../Components/Checkbox';
-// Import helper safeRoute yang sudah dibuat (opsional, tapi disarankan pakai helper terpusat)
-import { safeRoute } from '../../Utils/routeHelper'; 
+import InstallationArtwork from './InstallationArtwork';
+import { formatModuleName } from '../../Utils/textFormatter';
+import { safeRoute } from '../../Utils/routeHelper';
 
-export default function Configuration() {
-    const { data, setData, post, processing, errors } = useForm({
-        site_name: 'Futurisme Admin',
-        url_prefix: 'admin',
-        can_register: false,
-        theme_color: 'indigo',
-    });
+interface SettingItem {
+    id: number;
+    key: string;
+    value: any;
+    type: string;
+    form_type: string;
+    group: string;
+    by_module: string;
+}
 
-    const submit: FormEventHandler = (e) => {
+interface Props {
+    settings: SettingItem[];
+}
+
+export default function Configuration({ settings = [] }: Props) {
+    // 1. Grouping Data
+    const groupedSettings = useMemo(() => {
+        const groups: Record<string, Record<string, SettingItem[]>> = {};
+        
+        settings.forEach(item => {
+            const moduleName = item.by_module || 'System Core';
+            const groupName = item.group || 'General';
+
+            if (!groups[moduleName]) groups[moduleName] = {};
+            if (!groups[moduleName][groupName]) groups[moduleName][groupName] = [];
+
+            groups[moduleName][groupName].push(item);
+        });
+
+        return groups;
+    }, [settings]);
+
+    const modules = Object.keys(groupedSettings);
+    const [activeTab, setActiveTab] = useState(modules[0]);
+
+    // 2. Form Handling
+    const initialFormValues = settings.reduce((acc, item) => {
+        acc[item.key] = item.value;
+        return acc;
+    }, {} as Record<string, any>);
+
+    const { data, setData, post, processing, errors } = useForm(initialFormValues);
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
-        // Gunakan safeRoute dengan fallback URL manual
-        const url = safeRoute('futurisme.setup.config.store', '/fu-settings/save');
-        
-        console.log('Submitting to:', url); 
-        post(url);
+        post(safeRoute('futurisme.setup.config.store', '/fu-settings/save'));
     };
 
     return (
-        // Ganti styles.loginContainer dengan styling Tailwind langsung
-        <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-50 to-gray-200"
-             style={{ 
-                 backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', 
-                 backgroundSize: '24px 24px' 
-             }}>
-
-            <Head title="Installation Wizard - Step 1" />
-
-            <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-6"
-            >
-                <div className="flex justify-center mb-4">
-                    <Icon icon="heroicons:cog-6-tooth" className="text-indigo-600" width="48" height="48" />
+        <FaPublicLayout title="System Configuration" maxWidth="w-full h-screen p-0 max-w-full">
+            
+            {/* Container utama memenuhi layar (h-screen) tanpa rounded/shadow berlebih */}
+            <div className="flex flex-col lg:flex-row min-h-screen h-screen bg-white dark:bg-slate-900 overflow-hidden">
+                
+                {/* LEFT COLUMN: ARTWORK (40% width on large screens, hidden on mobile) */}
+                <div className="hidden lg:block lg:w-2/5 h-full relative overflow-hidden">
+                    <div className="absolute inset-0">
+                        <InstallationArtwork />
+                    </div>
                 </div>
-                <h2 className="text-3xl font-extrabold text-gray-900">
-                    Installation Wizard
-                </h2>
-                <p className="mt-2 text-sm text-gray-500">
-                    Step 1: System Configuration
-                </p>
-            </motion.div>
 
-            {/* Form Card dengan styling langsung */}
-            <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-md mt-6 px-8 py-8 bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100 backdrop-blur-sm"
-            >
-                <form onSubmit={submit} className="space-y-6">
-                    {/* Site Name */}
-                    <div>
-                        <InputLabel value="Site Name" />
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Icon icon="heroicons:globe-alt" className="text-gray-400" />
+                {/* RIGHT COLUMN: FORM & CONTENT (60% width on large screens) */}
+                <div className="w-full lg:w-3/5 h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
+                    
+                    {/* Header Section */}
+                    <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0 z-20">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600 dark:text-indigo-400">
+                                <Icon icon="solar:settings-bold-duotone" width="32" height="32" />
                             </div>
-                            <TextInput
-                                value={data.site_name}
-                                onChange={(e) => setData('site_name', e.target.value)}
-                                className="mt-1 pl-10"
-                                placeholder="My Awesome App"
-                            />
-                        </div>
-                        <InputError message={errors.site_name} className="mt-2" />
-                    </div>
-
-                    {/* URL Prefix */}
-                    <div>
-                        <InputLabel value="Admin URL Prefix" />
-                        <div className="flex items-center">
-                            <span className="text-gray-500 mr-2 text-sm">yourdomain.com/</span>
-                            <TextInput
-                                value={data.url_prefix}
-                                onChange={(e) => setData('url_prefix', e.target.value)}
-                                className="mt-1"
-                                placeholder="admin"
-                            />
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">
-                            Use 'admin', 'panel', 'backend', etc.
-                        </p>
-                        <InputError message={errors.url_prefix} className="mt-2" />
-                    </div>
-
-                    {/* Theme Color */}
-                    <div>
-                        <InputLabel value="Theme Color" />
-                        <div className="relative">
-                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Icon icon="heroicons:paint-brush" className="text-gray-400" />
+                            <div>
+                                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    Configuration Wizard
+                                </h1>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                                    Configure your ecosystem modules to get started.
+                                </p>
                             </div>
-                            <select
-                                value={data.theme_color}
-                                onChange={(e) => setData('theme_color', e.target.value)}
-                                className="mt-1 block w-full pl-10 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                            >
-                                <option value="indigo">Indigo (Default)</option>
-                                <option value="red">Red</option>
-                                <option value="green">Green</option>
-                                <option value="blue">Blue</option>
-                            </select>
                         </div>
                     </div>
 
-                    {/* Checkbox */}
-                    <div className="block">
-                        <label className="flex items-center">
-                            <Checkbox
-                                name="can_register"
-                                checked={data.can_register}
-                                onChange={(e) => setData('can_register', e.target.checked)}
-                            />
-                            <span className="ml-2 text-sm text-gray-600">
-                                Allow public registration?
-                            </span>
-                        </label>
-                    </div>
+                    <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                        <div className="flex-1 flex flex-col md:flex-row h-full overflow-hidden">
+                            
+                            {/* Inner Sidebar: Module Tabs */}
+                            <div className="w-full md:w-64 bg-slate-50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 p-4 overflow-y-auto shrink-0">
+                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-3">
+                                    Available Modules
+                                </h3>
+                                <div className="space-y-1">
+                                    {modules.map((module) => (
+                                        <button
+                                            key={module}
+                                            type="button"
+                                            onClick={() => setActiveTab(module)}
+                                            className={`
+                                                w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3
+                                                ${activeTab === module 
+                                                    ? 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700' 
+                                                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'}
+                                            `}
+                                        >
+                                            <Icon 
+                                                icon={module.includes('admin') ? 'solar:shield-user-bold' : 'solar:box-bold'} 
+                                                className={activeTab === module ? 'text-indigo-500' : 'text-slate-400'}
+                                                width="18" 
+                                            />
+                                            <span className="truncate">{formatModuleName(module)}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
 
-                    <PrimaryButton className="w-full justify-center" disabled={processing}>
-                        {processing ? (
-                            <span className="flex items-center">
-                                <Icon icon="eos-icons:loading" className="animate-spin mr-2" />
-                                Saving...
-                            </span>
-                        ) : (
-                            <span className="flex items-center">
-                                Next: Create Admin Account
-                                <Icon icon="heroicons:arrow-right" className="ml-2" />
-                            </span>
-                        )}
-                    </PrimaryButton>
-                </form>
-            </motion.div>
-        </div>
+                            {/* Content Area (Scrollable) */}
+                            <div className="flex-1 relative h-full overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900">
+                                <div className="p-6 md:p-8 pb-24"> {/* Extra padding bottom for safe area */}
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={activeTab}
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <div className="mb-8">
+                                                <h2 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                                    {formatModuleName(activeTab)}
+                                                    <span className="text-sm font-normal text-slate-400 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                        v1.0.0
+                                                    </span>
+                                                </h2>
+                                                <div className="h-1 w-12 bg-indigo-500 mt-2 rounded-full"></div>
+                                            </div>
+
+                                            <div className="space-y-10">
+                                                {Object.entries(groupedSettings[activeTab]).map(([groupName, groupSettings]) => (
+                                                    <div key={groupName} className="relative group-section">
+                                                        
+                                                        {/* Sticky Header dalam scroll area */}
+                                                        <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm py-3 mb-4 border-b border-slate-100 dark:border-slate-800 -mx-6 md:-mx-8 px-6 md:px-8 shadow-sm">
+                                                            <h3 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                                                <Icon icon="solar:menu-dots-bold" />
+                                                                {groupName.replace('_', ' ')}
+                                                            </h3>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-6 gap-y-6">
+                                                            {groupSettings.map((setting) => (
+                                                                <div key={setting.id} className={setting.form_type === 'textarea' || setting.form_type === 'toggle' ? 'xl:col-span-2' : ''}>
+                                                                    <DynamicSettingInput 
+                                                                        setting={setting}
+                                                                        value={data[setting.key]}
+                                                                        onChange={(val) => setData(setting.key, val)}
+                                                                        error={errors[setting.key]}
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </motion.div>
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer Actions (Fixed at bottom of right column) */}
+                        <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 z-20">
+                            <div className="flex items-center gap-2 text-sm text-slate-500">
+                                <Icon icon="heroicons:information-circle" className="text-indigo-400" />
+                                <span className="hidden sm:inline">Changes will be applied immediately.</span>
+                            </div>
+                            
+                            <div className="w-full sm:w-auto flex gap-3">
+                                <PrimaryButton disabled={processing} className="w-full sm:w-auto px-8 py-3 text-base shadow-xl shadow-indigo-500/20 justify-center">
+                                    {processing ? (
+                                        <div className="flex items-center gap-2">
+                                            <Icon icon="eos-icons:loading" className="animate-spin" /> Saving...
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <Icon icon="solar:disk-bold" /> Save & Continue
+                                        </div>
+                                    )}
+                                </PrimaryButton>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </FaPublicLayout>
     );
 }
