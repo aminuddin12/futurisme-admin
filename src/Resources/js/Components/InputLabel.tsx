@@ -1,11 +1,18 @@
 import { LabelHTMLAttributes } from 'react';
 
-export default function InputLabel({ value, className = '', children, ...props }: LabelHTMLAttributes<HTMLLabelElement> & { value?: string }) {
+export default function InputLabel({ 
+    value, 
+    className = '', 
+    children, 
+    ...props 
+}: LabelHTMLAttributes<HTMLLabelElement> & { value?: string }) {
     return (
         <label 
             {...props} 
             className={`
-                block font-medium text-sm text-gray-700 mb-1 
+                block font-medium text-sm 
+                text-slate-700 dark:text-slate-300 
+                mb-1.5 tracking-wide
                 ${className}
             `}
         >

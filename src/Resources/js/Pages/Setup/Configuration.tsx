@@ -45,8 +45,18 @@ export default function Configuration({ settings = [] }: Props) {
     const [activeTab, setActiveTab] = useState(modules[0]);
 
     // 2. Form Handling
+    // Inisialisasi nilai awal dengan fallback agar tidak undefined
     const initialFormValues = settings.reduce((acc, item) => {
-        acc[item.key] = item.value;
+        // Jika value null/undefined dari DB, set ke string kosong untuk text input,
+        // tapi biarkan null untuk file input (agar preview bekerja benar di komponen)
+        if (item.form_type === 'file' || item.form_type === 'image') {
+            acc[item.key] = item.value; 
+        } else if (item.type === 'boolean' || item.form_type === 'toggle' || item.form_type === 'checkbox') {
+            // Pastikan boolean di-cast dengan benar
+            acc[item.key] = item.value === 'true' || item.value === '1' || item.value === 1 || item.value === true;
+        } else {
+            acc[item.key] = item.value || '';
+        }
         return acc;
     }, {} as Record<string, any>);
 
@@ -54,23 +64,37 @@ export default function Configuration({ settings = [] }: Props) {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(safeRoute('futurisme.setup.config.store', '/fu-settings/save'));
+        
+        // Inertia secara otomatis menggunakan FormData jika ada File object di dalam data.
+        // Kita tidak perlu memaksa forceFormData: true kecuali ada masalah spesifik.
+        // Namun, untuk memastikan semua data boolean/null terkirim dengan benar dalam FormData,
+        // kita bisa melakukan sedikit sanitasi sebelum kirim jika diperlukan, 
+        // tapi useForm Inertia biasanya sudah menanganinya.
+        
+        post(safeRoute('futurisme.setup.config.store', '/fu-settings/save'), {
+            forceFormData: true, // Aktifkan ini untuk file upload
+            onSuccess: () => {
+                // Optional success feedback
+            },
+            onError: (err) => {
+                console.error("Submission error:", err);
+            }
+        });
     };
 
     return (
         <FaPublicLayout title="System Configuration" maxWidth="w-full h-screen p-0 max-w-full">
             
-            {/* Container utama memenuhi layar (h-screen) tanpa rounded/shadow berlebih */}
             <div className="flex flex-col lg:flex-row min-h-screen h-screen bg-white dark:bg-slate-900 overflow-hidden">
                 
-                {/* LEFT COLUMN: ARTWORK (40% width on large screens, hidden on mobile) */}
+                {/* LEFT COLUMN: ARTWORK (40% width) */}
                 <div className="hidden lg:block lg:w-2/5 h-full relative overflow-hidden">
                     <div className="absolute inset-0">
                         <InstallationArtwork />
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: FORM & CONTENT (60% width on large screens) */}
+                {/* RIGHT COLUMN: FORM & CONTENT (60% width) */}
                 <div className="w-full lg:w-3/5 h-full flex flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800">
                     
                     {/* Header Section */}
@@ -124,7 +148,7 @@ export default function Configuration({ settings = [] }: Props) {
 
                             {/* Content Area (Scrollable) */}
                             <div className="flex-1 relative h-full overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900">
-                                <div className="p-6 md:p-8 pb-24"> {/* Extra padding bottom for safe area */}
+                                <div className="p-6 md:p-8 pb-24">
                                     <AnimatePresence mode="wait">
                                         <motion.div
                                             key={activeTab}
@@ -147,7 +171,6 @@ export default function Configuration({ settings = [] }: Props) {
                                                 {Object.entries(groupedSettings[activeTab]).map(([groupName, groupSettings]) => (
                                                     <div key={groupName} className="relative group-section">
                                                         
-                                                        {/* Sticky Header dalam scroll area */}
                                                         <div className="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm py-3 mb-4 border-b border-slate-100 dark:border-slate-800 -mx-6 md:-mx-8 px-6 md:px-8 shadow-sm">
                                                             <h3 className="text-sm font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest flex items-center gap-2">
                                                                 <Icon icon="solar:menu-dots-bold" />
@@ -176,7 +199,7 @@ export default function Configuration({ settings = [] }: Props) {
                             </div>
                         </div>
 
-                        {/* Footer Actions (Fixed at bottom of right column) */}
+                        {/* Footer Actions */}
                         <div className="px-8 py-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 shrink-0 z-20">
                             <div className="flex items-center gap-2 text-sm text-slate-500">
                                 <Icon icon="heroicons:information-circle" className="text-indigo-400" />
