@@ -1,7 +1,6 @@
 {
     "name": "aminuddin12/futurisme-admin",
     "description": "Futurisme Admin Panel for Laravel 12",
-    "version": "1.0.0-beta",
     "type": "library",
     "license": "MIT",
     "authors": [
