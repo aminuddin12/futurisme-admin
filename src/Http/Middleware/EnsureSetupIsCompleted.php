@@ -20,8 +20,8 @@ class EnsureSetupIsCompleted
 
         // 1. Cek Konfigurasi Dasar (Site Name)
         try {
-            $setting = FuturismeSetting::where('key', 'site_name')->first();
-            $isConfigured = ($setting && !empty($setting->value)) || env('FUTURISME_SITE_NAME');
+            $setting = FuturismeSetting::where('key', 'app_name')->first();
+            $isConfigured = ($setting && !empty($setting->value)) || env('APP_NAME');
             
         } catch (\Exception $e) {
             $isConfigured = false;

@@ -23,52 +23,48 @@ class SetupController extends FuturismeBaseController
 {
     public function viewConfig()
     {
-        // Ambil semua setting dari database
+        $unconfiguredModules = FuturismeModule::whereNull('data')->get();
+
+        if ($unconfiguredModules->isEmpty()) {
+            return redirect()->route('futurisme.setup.admin')
+                ->with('status', 'Anda Sudah mengisi semua data konfigurasi, Sekarang ke tahap membuat akun admin');
+        }
+
         $settings = FuturismeSetting::orderBy('by_module')
             ->orderBy('group')
             ->orderBy('id')
             ->get();
 
-        // --- LOGIKA POPULASI DATA OPSI DINAMIS ---
-        // Kita akan memanipulasi collection $settings sebelum dikirim ke frontend
-        // untuk mengisi field 'option' yang kosong pada key tertentu.
-
         $timezones = $this->getTimezoneList();
-        $locales = $this->getLocaleList(); // Format 2 huruf (en, id)
-        $fakerLocales = $this->getFakerLocaleList(); // Format lengkap (en_US, id_ID)
+        $locales = $this->getLocaleList();
+        $fakerLocales = $this->getFakerLocaleList();
 
         $settings->transform(function ($item) use ($timezones, $locales, $fakerLocales) {
-            
-            // 1. Timezone
             if ($item->key === 'app.timezone') {
                 $item->option = $timezones;
             }
-
-            // 2. Locale & Fallback Locale (2 Huruf)
             if (in_array($item->key, ['app.locale', 'app.fallback_locale'])) {
                 $item->option = $locales;
             }
-
-            // 3. Faker Locale (Format Lengkap)
             if ($item->key === 'app.faker_locale') {
                 $item->option = $fakerLocales;
             }
-
             return $item;
+        });
+
+        $modules = FuturismeModule::all()->map(function($mod) {
+            $mod->is_configured = !is_null($mod->data);
+            return $mod;
         });
 
         return Inertia::render('Setup/Configuration', [
             'current_php_version' => phpversion(),
             'settings' => $settings,
-            // Kirim juga modul yang terinstal untuk header
-            'modules' => FuturismeModule::all() 
+            'modules' => $modules,
+            'pending_modules' => $unconfiguredModules->pluck('name') 
         ]);
     }
 
-    /**
-     * Mendapatkan daftar Timezone.
-     * Output: [{label: "(UTC+07:00) Asia/Jakarta", value: "Asia/Jakarta"}, ...]
-     */
     private function getTimezoneList()
     {
         $timezones = DateTimeZone::listIdentifiers();
@@ -94,13 +90,8 @@ class SetupController extends FuturismeBaseController
         return $list;
     }
 
-    /**
-     * Mendapatkan daftar Locale (2 Huruf).
-     * Output: [{label: "English (en)", value: "en"}, {label: "Indonesian (id)", value: "id"}]
-     */
     private function getLocaleList()
     {
-        // Daftar manual singkat untuk umum, atau bisa gunakan ResourceBundle jika extensi intl aktif
         $commonLocales = [
             'en' => 'English',
             'id' => 'Indonesian',
@@ -129,13 +120,8 @@ class SetupController extends FuturismeBaseController
         return $list;
     }
 
-    /**
-     * Mendapatkan daftar Faker Locale.
-     * Output: [{label: "Indonesian (Indonesia) - id_ID", value: "id_ID"}, ...]
-     */
     private function getFakerLocaleList()
     {
-        // Daftar umum yang didukung FakerPHP
         $fakerLocales = [
             'ar_JO' => 'Arabic (Jordan)',
             'ar_SA' => 'Arabic (Saudi Arabia)',
@@ -223,15 +209,11 @@ class SetupController extends FuturismeBaseController
 
     public function storeConfig(Request $request)
     {
-        // Cek izin penulisan env sebelum memproses apapun
-        // Jika user belum login (setup awal) -> Izinkan
-        // Jika user login -> Cek apakah Super Admin
         $user = Auth::guard('futurisme')->user();
         $isSetupMode = !FuturismeAdmin::exists();
         
         if (!$isSetupMode && (!$user || !$user->is_super_admin)) {
-            // Jika bukan setup mode dan user bukan super admin, tolak
-            // Kecuali EnvWriter mengizinkan update parsial (akan dicheck di dalam EnvWriter)
+            // Logic handled by EnvWriter check or Middleware
         }
 
         $allSettings = FuturismeSetting::all();
@@ -246,11 +228,8 @@ class SetupController extends FuturismeBaseController
             if ($request->has($inputKey) || $request->hasFile($inputKey)) {
                 $value = null;
 
-                // 1. Handle File Upload (Image)
                 if ($request->hasFile($inputKey)) {
                     $file = $request->file($inputKey);
-                    
-                    // Gunakan Helper Validasi Gambar
                     if (ImageValidation::isValid($file)) {
                         try {
                             $path = $file->store('futurisme/settings', 'public');
@@ -261,60 +240,102 @@ class SetupController extends FuturismeBaseController
                             continue;
                         }
                     } else {
-                        // Jika file diupload tapi tidak valid
                         $errors[$key] = ImageValidation::getErrorMessage();
                         continue; 
                     }
-                } 
-                // 2. Handle Input Biasa / Tidak ada file
-                else {
+                } else {
                     $rawValue = $request->input($inputKey);
-
-                    // LOGIKA DEFAULT IMAGE
-                    // Jika key adalah logo_url dan input kosong/null, gunakan default asset
-                    if ($key === 'logo_url' && empty($rawValue)) {
-                        // Pastikan asset ini ada di public/vendor/...
+                    if ($key === 'system.logo_url' && empty($rawValue)) {
                         $value = asset('vendor/futurisme-admin/assets/logo-default.svg'); 
-                        
-                        // Fallback jika file fisik tidak ketemu (opsional), gunakan string path
                         if (!file_exists(public_path('vendor/futurisme-admin/assets/logo-default.svg'))) {
-                           // Gunakan placeholder atau null agar frontend merender SVG inline default
                            $value = null; 
                         }
-                    } 
-                    // Normalisasi Boolean
-                    elseif ($setting->type === 'boolean' || $setting->form_type === 'toggle' || $setting->form_type === 'checkbox') {
+                    } elseif ($setting->type === 'boolean' || $setting->form_type === 'toggle' || $setting->form_type === 'checkbox') {
                         $value = filter_var($rawValue, FILTER_VALIDATE_BOOLEAN);
                     } else {
                         $value = $rawValue;
                     }
                 }
 
-                // Simpan ke DB hanya jika valid
                 if (!isset($errors[$key])) {
-                    $setting->update(['value' => $value]);
-                    $settingsToSave[$key] = $value;
+                    // Validasi Mandatory Fields
+                    if ($key === 'app.name' && empty($value)) {
+                        $errors[$inputKey] = 'Application Name is required.';
+                    }
+                    if ($key === 'app.url') {
+                        $isProduction = $request->input('app_env') === 'production';
+                        $isHttps = str_starts_with($value ?? '', 'https://');
+                        if (($isProduction || $isHttps) && empty($value)) {
+                            $errors[$inputKey] = 'Application URL is required for Production or HTTPS.';
+                        }
+                    }
+                    if ($key === 'app.locale' && empty($value)) {
+                        $errors[$inputKey] = 'Locale is required.';
+                    }
+                    if ($key === 'system.admin_url_prefix' && empty($value)) {
+                        $errors[$inputKey] = 'Admin URL Prefix is required.';
+                    }
+                    if ($key === 'theme.layout_mode' && empty($value)) {
+                        $errors[$inputKey] = 'Layout Mode is required.';
+                    }
+                    if ($key === 'theme.profile_button_position' && empty($value)) {
+                        $errors[$inputKey] = 'Profile Button Position is required.';
+                    }
 
-                    // Siapkan update .env (MAPPING KEY DATABASE KE KEY ENV)
-                    if ($key === 'app.name') $envUpdates['APP_NAME'] = $value;
-                    if ($key === 'app.desc') $envUpdates['APP_DESC'] = $value;
-                    if ($key === 'app.env') $envUpdates['APP_ENV'] = $value;
-                    if ($key === 'app.debug') $envUpdates['APP_DEBUG'] = $value;
-                    if ($key === 'app.url') $envUpdates['APP_URL'] = $value;
-                    if ($key === 'app.timezone') $envUpdates['APP_TIMEZONE'] = $value; // Sesuai permintaan
-                    if ($key === 'app.time_format') $envUpdates['APP_TIME_FORMAT'] = $value;
-                    if ($key === 'app.locale') $envUpdates['APP_LOCALE'] = $value;
-                    if ($key === 'app.fallback_locale') $envUpdates['APP_FALLBACK_LOCALE'] = $value;
-                    if ($key === 'app.faker_locale') $envUpdates['APP_FAKER_LOCALE'] = $value;
-                    
-                    if ($key === 'app.maintenance.driver') $envUpdates['APP_MAINTENANCE_DRIVER'] = $value;
-                    if ($key === 'app.maintenance.store') $envUpdates['APP_MAINTENANCE_STORE'] = $value;
+                    if (empty($errors[$inputKey])) {
+                        $settingsToSave[$key] = $value;
 
-                    if ($key === 'system.admin_url_prefix') $envUpdates['FUTURISME_ADMIN_URL_PREFIX'] = $value;
-                    if ($key === 'system.logo_url') $envUpdates['FUTURISME_LOGO_URL'] = $value;
-                    if ($key === 'system.favicon_url') $envUpdates['FUTURISME_FAVICON_URL'] = $value;
-                    
-                    // ... tambahkan mapping lain sesuai kebutuhan ...
+                        // Check Env Value Changes
+                        $envKeyMap = [
+                            'app.name' => 'APP_NAME',
+                            'app.desc' => 'APP_DESC',
+                            'app.env' => 'APP_ENV',
+                            'app.debug' => 'APP_DEBUG',
+                            'app.url' => 'APP_URL',
+                            'app.timezone' => 'APP_TIMEZONE',
+                            'app.time_format' => 'APP_TIME_FORMAT',
+                            'app.locale' => 'APP_LOCALE',
+                            'app.fallback_locale' => 'APP_FALLBACK_LOCALE',
+                            'app.faker_locale' => 'APP_FAKER_LOCALE',
+                            'app.maintenance.driver' => 'APP_MAINTENANCE_DRIVER',
+                            'app.maintenance.store' => 'APP_MAINTENANCE_STORE',
+                            'system.admin_url_prefix' => 'FUTURISME_ADMIN_URL_PREFIX',
+                            'system.logo_url' => 'FUTURISME_LOGO_URL',
+                            'system.favicon_url' => 'FUTURISME_FAVICON_URL',
+                            'system.enable_backup.by_days' => 'FUTURISME_BACKUP_DAY',
+                            'system.enable_backup.by_month' => 'FUTURISME_BACKUP_MONTH',
+                            'system.max_file_upload' => 'FUTURISME_MAX_FILE_UPLOAD',
+                            'auth.admin_can_create_user' => 'FUTURISME_AUTH_CAN_CREATE_USER',
+                            'auth.public_can_register' => 'FUTURISME_PUBLIC_CAN_REGISTER',
+                            'auth.public_can_reset_password' => 'FUTURISME_PUBLIC_CAN_RESET_PASSWORD',
+                            'auth.public_can_verify_account' => 'FUTURISME_PUBLIC_CAN_VERIFY_ACCOUNT',
+                            'auth.can_view_log' => 'FUTURISME_AUTH_CAN_VIEW_LOG',
+                            'theme.auto_dark_mode' => 'FUTURISME_THEME_DARK_MODE',
+                            'theme.color_primary' => 'FUTURISME_PRIMARY_COLOR',
+                            'theme.color_secondary' => 'FUTURISME_SECONDARY_COLOR',
+                            'theme.layout_mode' => 'FUTURISME_LAYOUT_MODE',
+                            'social.github' => 'FUTURISME_SOCIAL_GITHUB',
+                            'social.instagram' => 'FUTURISME_SOCIAL_INSTAGRAM',
+                        ];
+
+                        if (isset($envKeyMap[$key])) {
+                            $envKey = $envKeyMap[$key];
+                            $currentEnvValue = env($envKey);
+                            
+                            // Bandingkan value dengan env (perhatikan tipe data string/bool)
+                            $normalizedValue = is_bool($value) ? ($value ? 'true' : 'false') : (string)$value;
+                            $normalizedEnv = is_bool($currentEnvValue) ? ($currentEnvValue ? 'true' : 'false') : (string)$currentEnvValue;
+
+                            if ($normalizedValue !== $normalizedEnv) {
+                                $envUpdates[$envKey] = $value;
+                            }
+                        }
+                        
+                        // Update Database if changed
+                        if ($setting->value != $value) {
+                            $setting->update(['value' => $value]);
+                        }
+                    }
                 }
             }
         }
@@ -323,40 +344,42 @@ class SetupController extends FuturismeBaseController
             throw ValidationException::withMessages($errors);
         }
 
-        // Update .env dengan Keamanan Ketat
         if (!empty($envUpdates)) {
             try {
-                // EnvWriter akan mengecek permission di dalamnya
                 $envUpdated = EnvWriter::update($envUpdates);
-                
                 if (!$envUpdated && $isSetupMode) {
-                    // Jika gagal saat setup mode, mungkin permission file server
                     Log::error('Gagal menulis .env saat setup.');
                 }
             } catch (\Exception $e) {
-                // Tangkap error jika user tidak punya akses
                 if ($request->wantsJson()) {
                     return response()->json(['message' => $e->getMessage()], 403);
                 }
             }
         }
 
-        // Update Module Snapshot
         $this->updateModuleSnapshot($settingsToSave);
 
-        // Clear Caches
         try {
             \Illuminate\Support\Facades\Artisan::call('config:clear');
             \Illuminate\Support\Facades\Artisan::call('route:clear');
         } catch (\Exception $e) {}
 
-        // Cek Kelengkapan Setup
+        // Cek lagi apakah masih ada modul yang belum dikonfigurasi setelah penyimpanan
+        // Jika semua modul terisi, bisa langsung redirect ke admin
+        $unconfiguredModules = FuturismeModule::whereNull('data')->get();
+        if ($unconfiguredModules->isEmpty()) {
+             return redirect()->route('futurisme.setup.admin')
+                ->with('status', 'Konfigurasi modul lengkap. Silakan buat akun admin.');
+        }
+
+        // Jika masih ada setting umum yang kosong (fallback)
         $incompleteSettings = FuturismeSetting::whereNull('value')->count();
         if ($incompleteSettings > 0) {
             return redirect()->back()->with('warning', "Konfigurasi tersimpan, namun masih ada {$incompleteSettings} pengaturan yang kosong.");
         }
 
-        return redirect()->route('futurisme.setup.admin');
+        // Default: Refresh halaman ini atau ke modul berikutnya (jika frontend handle tab)
+        return redirect()->back()->with('success', 'Konfigurasi modul berhasil disimpan.');
     }
 
     protected function updateModuleSnapshot(array $settingsSnapshot)
@@ -390,7 +413,6 @@ class SetupController extends FuturismeBaseController
 
     public function storeAdmin(Request $request)
     {
-        // Pastikan tidak ada admin sebelumnya (Double Security)
         if (FuturismeAdmin::exists()) {
             return redirect()->route('futurisme.login');
         }
@@ -401,37 +423,27 @@ class SetupController extends FuturismeBaseController
             'password' => 'required|confirmed|min:8',
         ]);
 
-        // 1. Buat User Super Admin
         $admin = FuturismeAdmin::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Pastikan di-hash manual jika model tidak auto-hash
+            'password' => Hash::make($request->password), 
             'is_super_admin' => true,
             'is_active' => true,
         ]);
 
-        // 2. Setup Roles & Permissions
-        // Pastikan Role 'Super Admin' ada
         $superAdminRole = FuturismeRole::firstOrCreate(
             ['name' => 'Super Admin'],
             ['guard_name' => 'futurisme']
         );
 
-        // Assign Role ke User (Menggunakan Trait HasRoles)
-        // Pastikan model FuturismeAdmin menggunakan trait HasRoles yang sudah diperbaiki
         if (method_exists($admin, 'roles')) {
              $admin->roles()->sync([$superAdminRole->id]);
         }
 
-        // Assign Semua Permission ke Role Super Admin
-        // Ambil semua permission yang ada di sistem saat ini
         $allPermissions = FuturismePermission::all();
         if ($allPermissions->count() > 0) {
             $superAdminRole->permissions()->sync($allPermissions);
         }
-
-        // 3. Kunci EnvWriter (Tandai setup selesai secara implisit dengan adanya admin)
-        // Logika EnvWriter otomatis mengecek FuturismeAdmin::exists()
 
         return redirect()->route('futurisme.login')->with('status', 'Setup Complete! Please login.');
     }

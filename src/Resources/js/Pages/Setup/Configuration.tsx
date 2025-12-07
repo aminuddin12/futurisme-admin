@@ -94,7 +94,6 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
         } else if (flash?.error) {
             setFlashMsg({ msg: flash.error, type: 'error' });
         } else if (Object.keys(pageErrors).length > 0) {
-            // Ambil error pertama jika ada multiple error validasi
             const firstError = Object.values(pageErrors)[0];
             setFlashMsg({ msg: firstError as string, type: 'error' });
         }
@@ -105,7 +104,6 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
         const dbModule = modules.find(m => m.plugin === activeTab);
         if (dbModule) return dbModule;
 
-        // Fallback jika data modul tidak dikirim dari controller
         return {
             name: formatLabel(getModuleName(activeTab)),
             plugin: activeTab,
@@ -114,12 +112,19 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
         };
     }, [activeTab, modules]);
 
+    // --- INITIAL FORM VALUES (PERBAIKAN UTAMA DISINI) ---
     const initialFormValues = settings.reduce((acc, item) => {
-        if (['file', 'image'].includes(item.form_type)) {
+        // Special Case: app.url wajib ada default value jika kosong agar tidak null saat submit
+        if (item.key === 'app.url' && !item.value) {
+            acc[item.key] = 'http://localhost';
+        }
+        else if (['file', 'image'].includes(item.form_type)) {
             acc[item.key] = item.value; 
-        } else if (['boolean', 'toggle', 'checkbox'].includes(item.type) || ['toggle', 'checkbox'].includes(item.form_type)) {
+        } 
+        else if (['boolean', 'toggle', 'checkbox'].includes(item.type) || ['toggle', 'checkbox'].includes(item.form_type)) {
             acc[item.key] = item.value === 'true' || item.value === '1' || item.value === 1 || item.value === true;
-        } else {
+        } 
+        else {
             acc[item.key] = item.value || '';
         }
         return acc;
@@ -141,27 +146,25 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
 
     return (
         <FaPublicLayout title="Configuration Wizard" maxWidth="max-w-full">
-            {/* Flash Message Component */}
             <FlashMessage 
                 message={flashMsg.msg} 
                 type={flashMsg.type} 
                 onClose={() => setFlashMsg({ ...flashMsg, msg: null })} 
             />
 
-            {/* Main Container: h-screen & overflow-hidden penting untuk mencegah scrollbar ganda */}
             <div className="flex flex-col lg:flex-row h-screen bg-white dark:bg-slate-900 overflow-hidden fixed inset-0">
                 
-                {/* Left Panel: Artwork */}
+                {/* Left Panel */}
                 <div className="hidden lg:block lg:w-5/12 xl:w-1/3 relative bg-slate-900 h-full border-r border-slate-800">
                     <div className="h-full w-full relative z-10">
                         <InstallationArtwork />
                     </div>
                 </div>
 
-                {/* Right Panel: Content */}
+                {/* Right Panel */}
                 <div className="w-full lg:w-7/12 xl:w-2/3 flex flex-col h-full bg-slate-50 dark:bg-slate-950 relative">
                     
-                    {/* Header: Fixed */}
+                    {/* Header */}
                     <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 shadow-sm flex justify-between items-center shrink-0">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-600 dark:text-indigo-400">
@@ -186,7 +189,7 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
 
                     <form onSubmit={handleSubmit} className="flex-1 flex flex-col md:flex-row min-h-0 overflow-hidden relative">
                         
-                        {/* Sidebar: Navigation List */}
+                        {/* Sidebar */}
                         <div className="w-full md:w-60 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 h-full overflow-y-auto custom-scrollbar">
                             <div className="p-3">
                                 <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-2 mt-2">
@@ -194,7 +197,6 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
                                 </h3>
                                 <div className="space-y-1">
                                     {isMenuLoading ? (
-                                        // Skeleton Animation
                                         Array.from({ length: 5 }).map((_, i) => (
                                             <div key={i} className="px-3 py-2.5 rounded-md flex items-center gap-3 animate-pulse">
                                                 <div className="w-4 h-4 bg-slate-200 dark:bg-slate-800 rounded"></div>
@@ -202,7 +204,6 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
                                             </div>
                                         ))
                                     ) : (
-                                        // Actual Menu Items
                                         moduleOrder.map((module) => {
                                             const isActive = activeTab === module;
                                             return (
@@ -234,8 +235,7 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
                             </div>
                         </div>
 
-                        {/* Content: Form Inputs */}
-                        {/* UPDATED: Increased pb to pb-60 to ensure footer never covers content */}
+                        {/* Content */}
                         <div className="flex-1 h-full overflow-y-auto custom-scrollbar bg-slate-50 dark:bg-slate-950 p-4 md:p-8 pb-60">
                             <AnimatePresence mode="wait">
                                 <motion.div
@@ -245,7 +245,7 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.25, ease: "easeOut" }}
                                 >
-                                    {/* Module Header Info */}
+                                    {/* Module Info */}
                                     <div className="mb-6 bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
@@ -267,7 +267,7 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
                                         </div>
                                     </div>
 
-                                    {/* Settings Groups */}
+                                    {/* Forms */}
                                     <div className="space-y-6 pb-14">
                                         {groupedSettings[activeTab] && groupOrder[activeTab].map((groupName, idx) => (
                                             <motion.div 
@@ -302,7 +302,7 @@ export default function Configuration({ settings = [], modules = [] }: Props) {
                         </div>
                     </form>
 
-                    {/* Footer Actions */}
+                    {/* Footer */}
                     <div className="absolute bottom-0 left-0 w-full bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-4 md:px-6 z-40">
                         <div className="flex flex-col sm:flex-row justify-between items-center max-w-full gap-4">
                             <div className="hidden sm:flex items-center gap-2 text-[11px] text-slate-400">

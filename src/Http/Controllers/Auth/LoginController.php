@@ -18,7 +18,7 @@ class LoginController extends FuturismeBaseController
      */
     public function create()
     {
-        $canRegister = config('fu-admin.auth.can_register', false);
+        $canRegister = config('fu-admin.auth.public_can_register', false);
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('futurisme.password.request'),
             'status' => session('status'),

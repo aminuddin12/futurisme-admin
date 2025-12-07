@@ -1,4 +1,4 @@
-import{j as e,X as w,G as k,r as I,S as C}from"./app-CQoKLARg.js";import{I as t}from"./iconify-CszSZtxb.js";import{T as u,I as h,P as D}from"./TextInput-BodlzleR.js";import{I as g}from"./InputLabel-D2yCoExc.js";import{L as S}from"./LogoDefault-DVqM7SAl.js";import{m as i,s as d}from"./routeHelper-BxGXn2N5.js";import"./app-BWoMU4go.js";function E({className:r="",...n}){return e.jsx("input",{...n,type:"checkbox",className:`
+import{j as e,X as w,G as k,r as I,S as C}from"./app-D4Jw5Hj3.js";import{I as t}from"./iconify-BDCsd3A7.js";import{T as u,I as h,P as D}from"./TextInput-ZmOMszMJ.js";import{I as g}from"./InputLabel-C5tI0PpU.js";import{L as S}from"./LogoDefault-BoRbbYFg.js";import{m as i,s as d}from"./routeHelper-DIvZs9-Y.js";import"./app-41ielK2i.js";function E({className:r="",...n}){return e.jsx("input",{...n,type:"checkbox",className:`
                 rounded border-gray-300 text-indigo-600 shadow-sm 
                 focus:ring-indigo-500 w-4 h-4 
                 ${r}

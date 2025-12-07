@@ -26,7 +26,7 @@ Route::middleware(['web', HandleInertiaRequests::class])->group(function () use 
     // ---------------------------------------------------------------------
     // A. SETUP WIZARD (Public Access, tapi diblokir jika setup selesai)
     // ---------------------------------------------------------------------
-    Route::middleware([EnsureSetupIsNotCompleted::class])->group(function () {
+    Route::middleware(['web', 'futurisme.setup_check'])->group(function () {
         Route::get('/fu-settings', [SetupController::class, 'viewConfig'])->name('futurisme.setup.config');
         Route::post('/fu-settings/save', [SetupController::class, 'storeConfig'])->name('futurisme.setup.config.store');
         
