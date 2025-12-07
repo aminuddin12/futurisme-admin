@@ -1,4 +1,4 @@
-import{j as a,r as o}from"./vendor-react-mIUCV8oU.js";function f({className:s="",disabled:e,children:t,...r}){return a.jsx("button",{...r,className:`
+import{j as a,r as o}from"./app-BP9kCYin.js";function f({className:s="",disabled:e,children:t,...r}){return a.jsx("button",{...r,className:`
                 inline-flex items-center justify-center 
                 px-4 py-3 w-full 
                 bg-indigo-600 border border-transparent rounded-lg 

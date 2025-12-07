@@ -3,11 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title inertia>{{ config('app.name', 'Laravel') }}</title>
+    <title inertia>{{ config('app.name', 'Futurisme Ecosystem') }}</title>
+
+    {{-- Favicon --}}
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
     @routes
 
-    {{-- Injeksi Config Ziggy (Tetap Sama) --}}
+    {{-- Config Ziggy --}}
     @php
         $ziggyConfig = null;
         try {
@@ -34,47 +37,56 @@
     @endif
 
     {{-- 
-        LOGIKA LOAD ASSET DENGAN MANIFEST (HASHING SUPPORT) 
-        Kita baca manifest.json untuk mendapatkan nama file asli (misal: app-XH123.css)
+        === ASSET LOADER (PACKAGE MODE) ===
+        Mencoba load dari manifest build produksi.
     --}}
     @php
-        $manifestPath = public_path('vendor/futurisme-admin/.vite/manifest.json');
-        $cssFile = 'vendor/futurisme-admin/assets/app.css'; // Fallback
-        $jsFile = 'vendor/futurisme-admin/assets/app.js';   // Fallback
+        $publicPath = 'vendor/futurisme-admin'; // Folder di public/
+        $manifestFile = public_path($publicPath . '/.vite/manifest.json');
+        
+        $cssFile = null;
+        $jsFile = null;
 
-        if (file_exists($manifestPath)) {
-            $manifest = json_decode(file_get_contents($manifestPath), true);
+        if (file_exists($manifestFile)) {
+            $manifest = json_decode(file_get_contents($manifestFile), true);
             
-            // Key di manifest biasanya relatif terhadap root source, misal 'src/Resources/css/app.css'
-            // Sesuaikan dengan input di vite.config.ts
-            $cssKey = 'src/Resources/css/app.css';
-            $jsKey = 'src/Resources/js/app.tsx';
+            // Key harus sama persis dengan input di vite.config.ts
+            $cssInput = 'src/Resources/css/app.css';
+            $jsInput = 'src/Resources/js/app.tsx';
 
-            if (isset($manifest[$cssKey]['file'])) {
-                $cssFile = 'vendor/futurisme-admin/' . $manifest[$cssKey]['file'];
+            // Ambil path file hasil build (biasanya ada hash-nya)
+            if (isset($manifest[$cssInput]['file'])) {
+                $cssFile = asset($publicPath . '/' . $manifest[$cssInput]['file']);
             }
-            if (isset($manifest[$jsKey]['file'])) {
-                $jsFile = 'vendor/futurisme-admin/' . $manifest[$jsKey]['file'];
+            
+            if (isset($manifest[$jsInput]['file'])) {
+                $jsFile = asset($publicPath . '/' . $manifest[$jsInput]['file']);
             }
         }
     @endphp
 
-    {{-- Load CSS --}}
-    <link rel="stylesheet" href="{{ asset($cssFile) }}">
-    
-    {{-- Load JS --}}
-    <script type="module" src="{{ asset($jsFile) }}" defer></script>
-    
-    {{-- Preload Vendor Chunks jika ada di manifest (Opsional tapi bagus untuk performa) --}}
-    @if(isset($manifest) && isset($manifest[$jsKey]['imports']))
-        @foreach($manifest[$jsKey]['imports'] as $import)
-            <link rel="modulepreload" href="{{ asset('vendor/futurisme-admin/' . $manifest[$import]['file']) }}">
-        @endforeach
+    {{-- DEBUG MODE: Jika asset tidak ketemu --}}
+    @if(!$jsFile)
+        <script>
+            console.error(
+                'Futurisme Error: Asset Manifest not found or invalid.\n' +
+                'Path checked: {{ $manifestFile }}\n' + 
+                'Please run "npm run build" inside the package and "php artisan vendor:publish --tag=futurisme-assets --force"'
+            );
+        </script>
+        {{-- Fallback: Coba load manual jika user lupa build (dev mode kasar) --}}
+        {{-- <script type="module" src="http://localhost:5173/src/Resources/js/app.tsx"></script> --}}
+    @else
+        {{-- Production Assets --}}
+        @if($cssFile)
+            <link rel="stylesheet" href="{{ $cssFile }}" />
+        @endif
+        <script type="module" src="{{ $jsFile }}" defer></script>
     @endif
-    
+
     @inertiaHead
 </head>
-<body class="fa-bg-gray-100 fa-font-sans fa-antialiased">
+<body class="bg-gray-50 font-sans antialiased text-slate-900 dark:bg-slate-900 dark:text-slate-100">
     @inertia
 </body>
 </html>

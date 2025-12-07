@@ -2,9 +2,7 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
-// Import Ziggy
 import { route as ziggyRoute } from 'ziggy-js';
-// Import ThemeProvider
 import { ThemeProvider } from './Components/Theme/ThemeContext';
 
 createInertiaApp({

@@ -44,17 +44,10 @@ export default function Configuration({ settings = [] }: Props) {
     const modules = Object.keys(groupedSettings);
     const [activeTab, setActiveTab] = useState(modules[0]);
 
-    // 2. Form Handling
-    // Inisialisasi nilai awal dengan fallback agar tidak undefined
     const initialFormValues = settings.reduce((acc, item) => {
-        // Jika value null/undefined dari DB, set ke string kosong untuk text input,
-        // tapi biarkan null untuk file input (agar preview bekerja benar di komponen)
         if (item.form_type === 'file' || item.form_type === 'image') {
-            // PENTING: Jangan ubah null menjadi string kosong untuk input file
-            // Biarkan null atau URL string (jika ada di DB)
             acc[item.key] = item.value; 
         } else if (item.type === 'boolean' || item.form_type === 'toggle' || item.form_type === 'checkbox') {
-            // Pastikan boolean di-cast dengan benar
             acc[item.key] = item.value === 'true' || item.value === '1' || item.value === 1 || item.value === true;
         } else {
             acc[item.key] = item.value || '';
@@ -67,19 +60,7 @@ export default function Configuration({ settings = [] }: Props) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // PENTING: Saat menggunakan Inertia dengan file upload, kita biasanya menggunakan 
-        // method POST dengan _method: PUT/PATCH jika itu update, tapi untuk setup ini POST murni sudah oke.
-        // Hapus forceFormData: true manual jika menyebabkan konflik header. 
-        // Inertia otomatis mendeteksi File object di dalam `data` dan mengubahnya jadi FormData.
-        
-        // Namun, ada trik khusus: Inertia kadang tidak otomatis mengubah null/boolean ke string yang valid
-        // dalam FormData jika kita mencampurnya.
-        
-        // Solusi Paling Aman untuk Upload File + Data Lain:
-        // Kita biarkan Inertia bekerja (router.post), tapi pastikan header tidak kita timpa secara manual.
-        
         post(safeRoute('futurisme.setup.config.store', '/fu-settings/save'), {
-            forceFormData: false, // Ini memaksa penggunaan FormData
             onSuccess: () => {
                 // Optional success feedback
             },
@@ -88,9 +69,7 @@ export default function Configuration({ settings = [] }: Props) {
             }
         });
     };
-    
-    // Helper untuk mengubah data form (khusus file input)
-    // DynamicSettingInput akan memanggil ini.
+
     const handleSettingChange = (key: string, val: any) => {
         setData(key, val);
     };
