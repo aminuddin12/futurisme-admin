@@ -12,33 +12,65 @@ class FuturismeSettingsSeeder extends Seeder
         $moduleName = 'aminuddin12/futurisme-admin';
 
         $settings = [
-            // --- GENERAL ---
-            ['key' => 'site_name', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'general', 'by_module' => $moduleName],
-            ['key' => 'site_description', 'value' => null, 'type' => 'string', 'form_type' => 'textarea', 'group' => 'general', 'by_module' => $moduleName],
-            ['key' => 'site_url', 'value' => null, 'type' => 'string', 'form_type' => 'url', 'group' => 'general', 'by_module' => $moduleName],
-            ['key' => 'logo_url', 'value' => null, 'type' => 'string', 'form_type' => 'image', 'group' => 'general', 'by_module' => $moduleName],
-            ['key' => 'locale', 'value' => null, 'type' => 'string', 'form_type' => 'select', 'group' => 'general', 'by_module' => $moduleName],
-            ['key' => 'contact_phone', 'value' => null, 'type' => 'string', 'form_type' => 'phone', 'group' => 'general', 'by_module' => $moduleName],
+            // --- GRUP APP ---
+            ['key' => 'app.name', 'title' => 'Application Name', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.desc', 'title' => 'Application Description', 'value' => null, 'type' => 'string', 'form_type' => 'textarea', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            
+            // Environment dengan Opsi
+            ['key' => 'app.env', 'title' => 'Environment', 'value' => null, 'type' => 'string', 'form_type' => 'select', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system', 
+                'option' => ['production', 'local', 'staging', 'testing']
+            ], 
+            
+            ['key' => 'app.debug', 'title' => 'Debug Mode', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.url', 'title' => 'Application URL', 'value' => null, 'type' => 'string', 'form_type' => 'url', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.timezone', 'title' => 'Timezone', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.time_format', 'title' => 'Time Format', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.locale', 'title' => 'Locale', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.fallback_locale', 'title' => 'Fallback Locale', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'app.faker_locale', 'title' => 'Faker Locale', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            
+            // Maintenance Driver dengan Opsi
+            ['key' => 'app.maintenance.driver', 'title' => 'Maintenance Driver', 'value' => null, 'type' => 'string', 'form_type' => 'select', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system',
+                'option' => ['file', 'cache']
+            ],
+            
+            // Maintenance Store dengan Opsi
+            ['key' => 'app.maintenance.store', 'title' => 'Maintenance Store', 'value' => null, 'type' => 'string', 'form_type' => 'select', 'group' => 'app', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system',
+                'option' => ['database', 'redis', 'memcached', 'file', 'array']
+            ],
 
-            // --- SYSTEM ---
-            ['key' => 'url_prefix', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'system', 'by_module' => $moduleName],
-            ['key' => 'maintenance_mode', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'system', 'by_module' => $moduleName],
-            ['key' => 'enable_backup', 'value' => null, 'type' => 'boolean', 'form_type' => 'checkbox', 'group' => 'system', 'by_module' => $moduleName],
-            ['key' => 'backup_schedule_time', 'value' => null, 'type' => 'string', 'form_type' => 'time', 'group' => 'system', 'by_module' => $moduleName],
-            ['key' => 'max_upload_size', 'value' => null, 'type' => 'integer', 'form_type' => 'number', 'group' => 'system', 'by_module' => $moduleName],
+            // --- GRUP SYSTEM ---
+            ['key' => 'system.logo_url', 'title' => 'Logo URL', 'value' => null, 'type' => 'string', 'form_type' => 'image', 'group' => 'system', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'system.favicon_url', 'title' => 'Favicon URL', 'value' => null, 'type' => 'string', 'form_type' => 'image', 'group' => 'system', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'system.admin_url_prefix', 'title' => 'Admin URL Prefix', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'system', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'system.enable_backup.by_days', 'title' => 'Backup Schedule (Days)', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'system', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'system.enable_backup.by_month', 'title' => 'Backup Schedule (Month)', 'value' => null, 'type' => 'string', 'form_type' => 'text', 'group' => 'system', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'system.max_file_upload', 'title' => 'Max File Upload Size', 'value' => null, 'type' => 'integer', 'form_type' => 'number', 'group' => 'system', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
 
-            // --- AUTH ---
-            ['key' => 'auth.can_register', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'auth', 'by_module' => $moduleName],
-            ['key' => 'auth.can_reset_password', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'auth', 'by_module' => $moduleName],
+            // --- GRUP AUTHENTICATION ---
+            ['key' => 'auth.admin_can_create_user', 'title' => 'Admin Can Create User', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'authentication', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'auth.public_can_register', 'title' => 'Public Registration', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'authentication', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'auth.public_can_reset_password', 'title' => 'Public Password Reset', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'authentication', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'auth.public_can_verify_account', 'title' => 'Account Verification', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'authentication', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'auth.can_view_log', 'title' => 'View Log Access', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'authentication', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
 
-            // --- APPEARANCE ---
-            ['key' => 'theme.dark_mode', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'appearance', 'by_module' => $moduleName],
-            ['key' => 'theme.primary_color', 'value' => null, 'type' => 'string', 'form_type' => 'color_picker', 'group' => 'appearance', 'by_module' => $moduleName],
-            ['key' => 'theme.font_scale', 'value' => null, 'type' => 'integer', 'form_type' => 'range', 'group' => 'appearance', 'by_module' => $moduleName],
-            ['key' => 'theme.layout_style', 'value' => null, 'type' => 'string', 'form_type' => 'radio', 'group' => 'appearance', 'by_module' => $moduleName],
+            // --- GRUP THEME ---
+            ['key' => 'theme.dark_mode', 'title' => 'Dark Mode', 'value' => null, 'type' => 'boolean', 'form_type' => 'toggle', 'group' => 'theme', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'theme.color_primary', 'title' => 'Primary Color', 'value' => null, 'type' => 'string', 'form_type' => 'color_picker', 'group' => 'theme', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'theme.color_secondary', 'title' => 'Secondary Color', 'value' => null, 'type' => 'string', 'form_type' => 'color_picker', 'group' => 'theme', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            
+            // Layout Mode dengan Opsi
+            ['key' => 'theme.layout_mode', 'title' => 'Layout Mode', 'value' => null, 'type' => 'string', 'form_type' => 'radio', 'group' => 'theme', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system',
+                'option' => ['full_mode', 'boxed_mode']
+            ],
+
+            // --- GRUP OPTIONAL ---
+            ['key' => 'social.github', 'title' => 'Github URL', 'value' => null, 'type' => 'string', 'form_type' => 'url', 'group' => 'optional', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
+            ['key' => 'social.instagram', 'title' => 'Instagram URL', 'value' => null, 'type' => 'string', 'form_type' => 'url', 'group' => 'optional', 'by_module' => $moduleName, 'is_active' => 1, 'add_by' => 'system'],
         ];
 
         foreach ($settings as $setting) {
+            // Pastikan kolom 'option' di model FuturismeSetting sudah ditambahkan di fillable atau casts jika diperlukan
             FuturismeSetting::updateOrCreate(
                 ['key' => $setting['key']],
                 $setting

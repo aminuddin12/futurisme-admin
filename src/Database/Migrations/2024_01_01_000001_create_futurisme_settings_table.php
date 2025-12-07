@@ -12,6 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title')->nullable(); 
             $table->string('key')->unique();   // Contoh: 'site_name', 'auth.can_register'
+            $table->json('option')->nullable(); 
             $table->text('value')->nullable(); // Disimpan bisa dalam bentuk string atau JSON
             $table->string('type')->default('string'); // string, boolean, json, integer
             $table->string('group')->default('general'); // Untuk pengelompokan di UI
