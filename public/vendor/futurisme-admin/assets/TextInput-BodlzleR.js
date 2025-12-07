@@ -1,4 +1,7 @@
-import{j as a,r as o}from"./app-BP9kCYin.js";function f({className:s="",disabled:e,children:t,...r}){return a.jsx("button",{...r,className:`
+import{j as n,r as s}from"./app-CQoKLARg.js";function c({message:t,className:e="",...r}){return t?n.jsx("p",{...r,className:`
+                text-sm text-red-600 mt-1 animate-pulse 
+                ${e}
+            `,children:t}):null}function f({className:t="",disabled:e,children:r,...o}){return n.jsx("button",{...o,className:`
                 inline-flex items-center justify-center 
                 px-4 py-3 w-full 
                 bg-indigo-600 border border-transparent rounded-lg 
@@ -8,8 +11,8 @@ import{j as a,r as o}from"./app-BP9kCYin.js";function f({className:s="",disabled
                 transition ease-in-out duration-150 
                 shadow-lg 
                 ${e?"opacity-25":""}
-                ${s}
-            `,disabled:e,children:t})}const c=o.forwardRef(function({type:e="text",className:t="",isFocused:r=!1,...d},l){const i=o.useRef(null);return o.useEffect(()=>{var n;r&&((n=i.current)==null||n.focus())},[]),a.jsx("input",{...d,type:e,className:`
+                ${t}
+            `,disabled:e,children:r})}const x=s.forwardRef(function({type:e="text",className:r="",isFocused:o=!1,...d},l){const i=s.useRef(null);return s.useEffect(()=>{var a;o&&((a=i.current)==null||a.focus())},[]),n.jsx("input",{...d,type:e,className:`
                 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm 
                 placeholder:text-slate-400 
                 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none
@@ -21,5 +24,5 @@ import{j as a,r as o}from"./app-BP9kCYin.js";function f({className:s="",disabled
                 dark:disabled:bg-slate-800 dark:disabled:text-slate-400
 
                 transition-all duration-200 ease-in-out
-                ${t}
-            `,ref:i})});export{f as P,c as T};
+                ${r}
+            `,ref:i})});export{c as I,f as P,x as T};

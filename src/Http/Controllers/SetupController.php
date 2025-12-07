@@ -16,20 +16,209 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use DateTimeZone;
+use ResourceBundle;
 
 class SetupController extends FuturismeBaseController
 {
     public function viewConfig()
     {
+        // Ambil semua setting dari database
         $settings = FuturismeSetting::orderBy('by_module')
             ->orderBy('group')
             ->orderBy('id')
             ->get();
 
+        // --- LOGIKA POPULASI DATA OPSI DINAMIS ---
+        // Kita akan memanipulasi collection $settings sebelum dikirim ke frontend
+        // untuk mengisi field 'option' yang kosong pada key tertentu.
+
+        $timezones = $this->getTimezoneList();
+        $locales = $this->getLocaleList(); // Format 2 huruf (en, id)
+        $fakerLocales = $this->getFakerLocaleList(); // Format lengkap (en_US, id_ID)
+
+        $settings->transform(function ($item) use ($timezones, $locales, $fakerLocales) {
+            
+            // 1. Timezone
+            if ($item->key === 'app.timezone') {
+                $item->option = $timezones;
+            }
+
+            // 2. Locale & Fallback Locale (2 Huruf)
+            if (in_array($item->key, ['app.locale', 'app.fallback_locale'])) {
+                $item->option = $locales;
+            }
+
+            // 3. Faker Locale (Format Lengkap)
+            if ($item->key === 'app.faker_locale') {
+                $item->option = $fakerLocales;
+            }
+
+            return $item;
+        });
+
         return Inertia::render('Setup/Configuration', [
             'current_php_version' => phpversion(),
             'settings' => $settings,
+            // Kirim juga modul yang terinstal untuk header
+            'modules' => FuturismeModule::all() 
         ]);
+    }
+
+    /**
+     * Mendapatkan daftar Timezone.
+     * Output: [{label: "(UTC+07:00) Asia/Jakarta", value: "Asia/Jakarta"}, ...]
+     */
+    private function getTimezoneList()
+    {
+        $timezones = DateTimeZone::listIdentifiers();
+        $list = [];
+
+        foreach ($timezones as $timezone) {
+            $tz = new DateTimeZone($timezone);
+            $now = new \DateTime('now', $tz);
+            $offset = $tz->getOffset($now);
+            $hours = $offset / 3600;
+            $remainder = $offset % 3600;
+            $sign = $hours < 0 ? '-' : '+';
+            $hour = (int) abs($hours);
+            $minutes = (int) abs($remainder / 60);
+            $fmtOffset = sprintf('UTC%s%02d:%02d', $sign, $hour, $minutes);
+
+            $list[] = [
+                'label' => "($fmtOffset) $timezone",
+                'value' => $timezone
+            ];
+        }
+
+        return $list;
+    }
+
+    /**
+     * Mendapatkan daftar Locale (2 Huruf).
+     * Output: [{label: "English (en)", value: "en"}, {label: "Indonesian (id)", value: "id"}]
+     */
+    private function getLocaleList()
+    {
+        // Daftar manual singkat untuk umum, atau bisa gunakan ResourceBundle jika extensi intl aktif
+        $commonLocales = [
+            'en' => 'English',
+            'id' => 'Indonesian',
+            'ms' => 'Malay',
+            'ja' => 'Japanese',
+            'ko' => 'Korean',
+            'zh' => 'Chinese',
+            'ar' => 'Arabic',
+            'fr' => 'French',
+            'de' => 'German',
+            'es' => 'Spanish',
+            'ru' => 'Russian',
+            'pt' => 'Portuguese',
+            'hi' => 'Hindi',
+            'th' => 'Thai',
+            'vi' => 'Vietnamese'
+        ];
+
+        $list = [];
+        foreach ($commonLocales as $code => $name) {
+            $list[] = [
+                'label' => "$name ($code)",
+                'value' => $code
+            ];
+        }
+        return $list;
+    }
+
+    /**
+     * Mendapatkan daftar Faker Locale.
+     * Output: [{label: "Indonesian (Indonesia) - id_ID", value: "id_ID"}, ...]
+     */
+    private function getFakerLocaleList()
+    {
+        // Daftar umum yang didukung FakerPHP
+        $fakerLocales = [
+            'ar_JO' => 'Arabic (Jordan)',
+            'ar_SA' => 'Arabic (Saudi Arabia)',
+            'at_AT' => 'German (Austria)',
+            'bg_BG' => 'Bulgarian',
+            'bn_BD' => 'Bengali',
+            'cs_CZ' => 'Czech',
+            'da_DK' => 'Danish',
+            'de_AT' => 'German (Austria)',
+            'de_CH' => 'German (Switzerland)',
+            'de_DE' => 'German (Germany)',
+            'el_GR' => 'Greek',
+            'en_AU' => 'English (Australia)',
+            'en_CA' => 'English (Canada)',
+            'en_GB' => 'English (Great Britain)',
+            'en_HK' => 'English (Hong Kong)',
+            'en_IN' => 'English (India)',
+            'en_NG' => 'English (Nigeria)',
+            'en_NZ' => 'English (New Zealand)',
+            'en_PH' => 'English (Philippines)',
+            'en_SG' => 'English (Singapore)',
+            'en_UG' => 'English (Uganda)',
+            'en_US' => 'English (United States)',
+            'en_ZA' => 'English (South Africa)',
+            'es_AR' => 'Spanish (Argentina)',
+            'es_ES' => 'Spanish (Spain)',
+            'es_PE' => 'Spanish (Peru)',
+            'es_VE' => 'Spanish (Venezuela)',
+            'et_EE' => 'Estonian',
+            'fa_IR' => 'Persian (Iran)',
+            'fi_FI' => 'Finnish',
+            'fr_BE' => 'French (Belgium)',
+            'fr_CA' => 'French (Canada)',
+            'fr_CH' => 'French (Switzerland)',
+            'fr_FR' => 'French (France)',
+            'he_IL' => 'Hebrew',
+            'hr_HR' => 'Croatian',
+            'hu_HU' => 'Hungarian',
+            'hy_AM' => 'Armenian',
+            'id_ID' => 'Indonesian',
+            'is_IS' => 'Icelandic',
+            'it_CH' => 'Italian (Switzerland)',
+            'it_IT' => 'Italian (Italy)',
+            'ja_JP' => 'Japanese',
+            'ka_GE' => 'Georgian',
+            'kk_KZ' => 'Kazakh',
+            'ko_KR' => 'Korean',
+            'lt_LT' => 'Lithuanian',
+            'lv_LV' => 'Latvian',
+            'me_ME' => 'Montenegrin',
+            'mn_MN' => 'Mongolian',
+            'ms_MY' => 'Malay',
+            'nb_NO' => 'Norwegian (Bokmål)',
+            'ne_NP' => 'Nepali',
+            'nl_BE' => 'Dutch (Belgium)',
+            'nl_NL' => 'Dutch (Netherlands)',
+            'pl_PL' => 'Polish',
+            'pt_BR' => 'Portuguese (Brazil)',
+            'pt_PT' => 'Portuguese (Portugal)',
+            'ro_MD' => 'Romanian (Moldova)',
+            'ro_RO' => 'Romanian (Romania)',
+            'ru_RU' => 'Russian',
+            'sk_SK' => 'Slovak',
+            'sl_SI' => 'Slovenian',
+            'sr_Cyrl_RS' => 'Serbian (Cyrillic)',
+            'sr_Latn_RS' => 'Serbian (Latin)',
+            'sv_SE' => 'Swedish',
+            'th_TH' => 'Thai',
+            'tr_TR' => 'Turkish',
+            'uk_UA' => 'Ukrainian',
+            'vi_VN' => 'Vietnamese',
+            'zh_CN' => 'Chinese (China)',
+            'zh_TW' => 'Chinese (Taiwan)',
+        ];
+
+        $list = [];
+        foreach ($fakerLocales as $code => $name) {
+            $list[] = [
+                'label' => "$name ($code)",
+                'value' => $code
+            ];
+        }
+        return $list;
     }
 
     public function storeConfig(Request $request)
@@ -106,9 +295,26 @@ class SetupController extends FuturismeBaseController
                     $setting->update(['value' => $value]);
                     $settingsToSave[$key] = $value;
 
-                    // Siapkan update .env
-                    if ($key === 'site_name') $envUpdates['FUTURISME_SITE_NAME'] = $value;
-                    if ($key === 'url_prefix') $envUpdates['FUTURISME_URL_PREFIX'] = $value;
+                    // Siapkan update .env (MAPPING KEY DATABASE KE KEY ENV)
+                    if ($key === 'app.name') $envUpdates['APP_NAME'] = $value;
+                    if ($key === 'app.desc') $envUpdates['APP_DESC'] = $value;
+                    if ($key === 'app.env') $envUpdates['APP_ENV'] = $value;
+                    if ($key === 'app.debug') $envUpdates['APP_DEBUG'] = $value;
+                    if ($key === 'app.url') $envUpdates['APP_URL'] = $value;
+                    if ($key === 'app.timezone') $envUpdates['APP_TIMEZONE'] = $value; // Sesuai permintaan
+                    if ($key === 'app.time_format') $envUpdates['APP_TIME_FORMAT'] = $value;
+                    if ($key === 'app.locale') $envUpdates['APP_LOCALE'] = $value;
+                    if ($key === 'app.fallback_locale') $envUpdates['APP_FALLBACK_LOCALE'] = $value;
+                    if ($key === 'app.faker_locale') $envUpdates['APP_FAKER_LOCALE'] = $value;
+                    
+                    if ($key === 'app.maintenance.driver') $envUpdates['APP_MAINTENANCE_DRIVER'] = $value;
+                    if ($key === 'app.maintenance.store') $envUpdates['APP_MAINTENANCE_STORE'] = $value;
+
+                    if ($key === 'system.admin_url_prefix') $envUpdates['FUTURISME_ADMIN_URL_PREFIX'] = $value;
+                    if ($key === 'system.logo_url') $envUpdates['FUTURISME_LOGO_URL'] = $value;
+                    if ($key === 'system.favicon_url') $envUpdates['FUTURISME_FAVICON_URL'] = $value;
+                    
+                    // ... tambahkan mapping lain sesuai kebutuhan ...
                 }
             }
         }
@@ -212,7 +418,10 @@ class SetupController extends FuturismeBaseController
         );
 
         // Assign Role ke User (Menggunakan Trait HasRoles)
-        $admin->roles()->sync([$superAdminRole->id]);
+        // Pastikan model FuturismeAdmin menggunakan trait HasRoles yang sudah diperbaiki
+        if (method_exists($admin, 'roles')) {
+             $admin->roles()->sync([$superAdminRole->id]);
+        }
 
         // Assign Semua Permission ke Role Super Admin
         // Ambil semua permission yang ada di sistem saat ini
