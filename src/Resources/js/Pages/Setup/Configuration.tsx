@@ -50,6 +50,8 @@ export default function Configuration({ settings = [] }: Props) {
         // Jika value null/undefined dari DB, set ke string kosong untuk text input,
         // tapi biarkan null untuk file input (agar preview bekerja benar di komponen)
         if (item.form_type === 'file' || item.form_type === 'image') {
+            // PENTING: Jangan ubah null menjadi string kosong untuk input file
+            // Biarkan null atau URL string (jika ada di DB)
             acc[item.key] = item.value; 
         } else if (item.type === 'boolean' || item.form_type === 'toggle' || item.form_type === 'checkbox') {
             // Pastikan boolean di-cast dengan benar
@@ -65,14 +67,19 @@ export default function Configuration({ settings = [] }: Props) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Inertia secara otomatis menggunakan FormData jika ada File object di dalam data.
-        // Kita tidak perlu memaksa forceFormData: true kecuali ada masalah spesifik.
-        // Namun, untuk memastikan semua data boolean/null terkirim dengan benar dalam FormData,
-        // kita bisa melakukan sedikit sanitasi sebelum kirim jika diperlukan, 
-        // tapi useForm Inertia biasanya sudah menanganinya.
+        // PENTING: Saat menggunakan Inertia dengan file upload, kita biasanya menggunakan 
+        // method POST dengan _method: PUT/PATCH jika itu update, tapi untuk setup ini POST murni sudah oke.
+        // Hapus forceFormData: true manual jika menyebabkan konflik header. 
+        // Inertia otomatis mendeteksi File object di dalam `data` dan mengubahnya jadi FormData.
+        
+        // Namun, ada trik khusus: Inertia kadang tidak otomatis mengubah null/boolean ke string yang valid
+        // dalam FormData jika kita mencampurnya.
+        
+        // Solusi Paling Aman untuk Upload File + Data Lain:
+        // Kita biarkan Inertia bekerja (router.post), tapi pastikan header tidak kita timpa secara manual.
         
         post(safeRoute('futurisme.setup.config.store', '/fu-settings/save'), {
-            forceFormData: true, // Aktifkan ini untuk file upload
+            forceFormData: false, // Ini memaksa penggunaan FormData
             onSuccess: () => {
                 // Optional success feedback
             },
@@ -80,6 +87,12 @@ export default function Configuration({ settings = [] }: Props) {
                 console.error("Submission error:", err);
             }
         });
+    };
+    
+    // Helper untuk mengubah data form (khusus file input)
+    // DynamicSettingInput akan memanggil ini.
+    const handleSettingChange = (key: string, val: any) => {
+        setData(key, val);
     };
 
     return (
@@ -184,7 +197,7 @@ export default function Configuration({ settings = [] }: Props) {
                                                                     <DynamicSettingInput 
                                                                         setting={setting}
                                                                         value={data[setting.key]}
-                                                                        onChange={(val) => setData(setting.key, val)}
+                                                                        onChange={(val) => handleSettingChange(setting.key, val)}
                                                                         error={errors[setting.key]}
                                                                     />
                                                                 </div>

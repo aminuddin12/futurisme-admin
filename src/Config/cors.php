@@ -15,6 +15,7 @@ return [
     |
     */
 
+    // Menambahkan path setup ke whitelist CORS
     'paths' => ['api/*', 'sanctum/csrf-cookie', 'fu-settings/*', 'vendor/*'],
 
     'allowed_methods' => ['*'],

@@ -82,7 +82,7 @@ class InstallFuturismeAdmin extends Command
             $this->info('   ✅ cors.php published successfully.');
         } else {
             // Fallback: Buat file jika source tidak ketemu (opsional, tapi aman)
-            $content = "<?php\n\nreturn [\n    'paths' => ['api/*', 'sanctum/csrf-cookie', 'fu-settings/*', 'vendor/*'],\n    'allowed_methods' => ['*'],\n    'allowed_origins' => ['*'],\n    'allowed_origins_patterns' => [],\n    'allowed_headers' => ['*'],\n    'exposed_headers' => [],\n    'max_age' => 0,\n    'supports_credentials' => false,\n];";
+            $content = "<?php\n\nreturn [\n    'paths' => ['api/*', 'sanctum/csrf-cookie', 'fu-settings/*', 'vendor/*'],\n    'allowed_methods' => ['*'],\n    'allowed_origins' => ['*'],\n    'allowed_origins_patterns' => [],\n    'allowed_headers' => ['*'],\n    'exposed_headers' => [],\n    'max_age' => 0,\n    'supports_credentials' => true,\n];";
             file_put_contents($corsPath, $content);
             $this->info('   ✅ cors.php created successfully (fallback).');
         }
