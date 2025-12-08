@@ -1,17 +1,17 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'dark' | 'light' | 'system';
 
-interface ThemeProviderProps {
-    children: ReactNode;
+type ThemeProviderProps = {
+    children: React.ReactNode;
     defaultTheme?: Theme;
     storageKey?: string;
-}
+};
 
-interface ThemeProviderState {
+type ThemeProviderState = {
     theme: Theme;
     setTheme: (theme: Theme) => void;
-}
+};
 
 const initialState: ThemeProviderState = {
     theme: 'system',
@@ -23,10 +23,10 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 export function ThemeProvider({
     children,
     defaultTheme = 'system',
-    storageKey = 'futurisme-ui-theme',
+    storageKey = 'futurisme-theme',
     ...props
 }: ThemeProviderProps) {
-    // 1. Initialize State dari localStorage atau default
+    // 1. Ambil tema dari storage atau gunakan default
     const [theme, setTheme] = useState<Theme>(
         () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
     );
@@ -34,35 +34,48 @@ export function ThemeProvider({
     useEffect(() => {
         const root = window.document.documentElement;
 
-        // 2. Bersihkan class lama
-        root.classList.remove('light', 'dark');
+        // Fungsi untuk menerapkan class ke HTML
+        const applyTheme = (currentTheme: Theme) => {
+            // Hapus class lama
+            root.classList.remove('light', 'dark');
 
-        // 3. Logic System Theme
+            if (currentTheme === 'system') {
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+                    ? 'dark'
+                    : 'light';
+                
+                root.classList.add(systemTheme);
+                // Tambahkan atribut data-theme untuk styling CSS manual jika perlu
+                root.setAttribute('data-theme', systemTheme);
+            } else {
+                root.classList.add(currentTheme);
+                root.setAttribute('data-theme', currentTheme);
+            }
+        };
+
+        applyTheme(theme);
+
+        // Listener khusus untuk mode 'system' jika user mengubah preferensi OS saat membuka web
         if (theme === 'system') {
-            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-                .matches
-                ? 'dark'
-                : 'light';
-
-            root.classList.add(systemTheme);
-            return;
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = () => applyTheme('system');
+            
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
         }
 
-        // 4. Logic Manual Theme
-        root.classList.add(theme);
     }, [theme]);
 
-    // 5. Value Context
     const value = {
         theme,
-        setTheme: (theme: Theme) => {
-            localStorage.setItem(storageKey, theme);
-            setTheme(theme);
+        setTheme: (newTheme: Theme) => {
+            localStorage.setItem(storageKey, newTheme);
+            setTheme(newTheme);
         },
     };
 
     return (
-        <ThemeProviderContext.Provider {...props} value={value}>
+        <ThemeProviderContext.Provider value={value} {...props}>
             {children}
         </ThemeProviderContext.Provider>
     );
@@ -70,9 +83,7 @@ export function ThemeProvider({
 
 export const useTheme = () => {
     const context = useContext(ThemeProviderContext);
-
     if (context === undefined)
         throw new Error('useTheme must be used within a ThemeProvider');
-
     return context;
 };

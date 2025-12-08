@@ -18,7 +18,7 @@ class RegisterController extends FuturismeBaseController
     public function create()
     {
         // Cek config apakah registrasi diizinkan
-        if (!config('fu-admin.auth.can_register', false)) {
+        if (!config('fu-admin.auth.public_can_register', false)) {
             return redirect()->route('futurisme.login')
                 ->with('status', 'Registrasi publik saat ini dinonaktifkan.');
         }
@@ -32,7 +32,7 @@ class RegisterController extends FuturismeBaseController
     public function store(Request $request)
     {
         // Cek config lagi untuk keamanan ganda
-        if (!config('fu-admin.auth.can_register', false)) {
+        if (!config('fu-admin.auth.public_can_register', false)) {
             abort(403, 'Registrasi dinonaktifkan.');
         }
 

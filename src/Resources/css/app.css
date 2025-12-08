@@ -15,6 +15,14 @@
   */
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+    transition-property: color, background-color, border-color;
+    transition-duration: 300ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Custom Scrollbar 
   (Tailwind v4 mendukung banyak utilities modern, tapi custom scrollbar 
   masih sering butuh CSS manual)

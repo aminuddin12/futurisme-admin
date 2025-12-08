@@ -1,7 +1,12 @@
-import{j as n,r as s}from"./app-D4Jw5Hj3.js";function c({message:t,className:e="",...r}){return t?n.jsx("p",{...r,className:`
+import{j as n,r as o}from"./app-D17zdRPc.js";function c({message:t,className:e="",...r}){return t?n.jsx("p",{...r,className:`
                 text-sm text-red-600 mt-1 animate-pulse 
                 ${e}
-            `,children:t}):null}function f({className:t="",disabled:e,children:r,...o}){return n.jsx("button",{...o,className:`
+            `,children:t}):null}function f({value:t,className:e="",children:r,...s}){return n.jsx("label",{...s,className:`
+                block font-medium text-sm 
+                text-slate-700 dark:text-slate-300 
+                mb-1.5 tracking-wide
+                ${e}
+            `,children:t||r})}function x({className:t="",disabled:e,children:r,...s}){return n.jsx("button",{...s,className:`
                 inline-flex items-center justify-center 
                 px-4 py-3 w-full 
                 bg-indigo-600 border border-transparent rounded-lg 
@@ -12,7 +17,7 @@ import{j as n,r as s}from"./app-D4Jw5Hj3.js";function c({message:t,className:e="
                 shadow-lg 
                 ${e?"opacity-25":""}
                 ${t}
-            `,disabled:e,children:r})}const x=s.forwardRef(function({type:e="text",className:r="",isFocused:o=!1,...d},l){const i=s.useRef(null);return s.useEffect(()=>{var a;o&&((a=i.current)==null||a.focus())},[]),n.jsx("input",{...d,type:e,className:`
+            `,disabled:e,children:r})}const g=o.forwardRef(function({type:e="text",className:r="",isFocused:s=!1,...l},d){const a=o.useRef(null);return o.useEffect(()=>{var i;s&&((i=a.current)==null||i.focus())},[]),n.jsx("input",{...l,type:e,className:`
                 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm 
                 placeholder:text-slate-400 
                 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none
@@ -25,4 +30,4 @@ import{j as n,r as s}from"./app-D4Jw5Hj3.js";function c({message:t,className:e="
 
                 transition-all duration-200 ease-in-out
                 ${r}
-            `,ref:i})});export{c as I,f as P,x as T};
+            `,ref:a})});export{f as I,x as P,g as T,c as a};
