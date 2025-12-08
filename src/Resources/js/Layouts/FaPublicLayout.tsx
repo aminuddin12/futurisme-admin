@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 interface Props {
     children: ReactNode;
     title?: string;
-    maxWidth?: string; // Prop untuk fleksibilitas lebar
+    maxWidth?: string;
 }
 
 export default function FaPublicLayout({ children, title, maxWidth = 'max-w-[1920px]' }: Props) {

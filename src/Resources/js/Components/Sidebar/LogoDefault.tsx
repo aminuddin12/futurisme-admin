@@ -4,6 +4,7 @@ interface LogoDefaultProps {
   className?: string;
   textClassName?: string;
   iconClassName?: string;
+  collapsed?: boolean;
   href?: string;
 }
 
@@ -14,8 +15,7 @@ export default function LogoDefault({
 }: LogoDefaultProps) {
   const { config } = usePage().props as any;
 
-  // Logika: Gunakan config nama situs, default 'Futurisme Admin'
-  const siteName = config?.site_name || "Futurisme Admin";
+  const siteName = config?.site_name || "Fut";
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>

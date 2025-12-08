@@ -6,7 +6,14 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 export default function ThemeToggle({ className = '' }: { className?: string }) {
     const { config } = usePage().props as any;
-    const isAutoDarkMode = config?.theme_auto_dark_mode == 1;
+    
+    const rawAutoDarkMode = config?.theme?.auto_dark_mode;
+
+    const isAutoDarkMode = 
+        rawAutoDarkMode === true || 
+        rawAutoDarkMode === 1 || 
+        rawAutoDarkMode === '1' || 
+        rawAutoDarkMode === 'true';
 
     const { theme, setTheme } = useTheme();
     const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +28,6 @@ export default function ThemeToggle({ className = '' }: { className?: string }) 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
     if (isAutoDarkMode) return null;
 
     const getCurrentIcon = () => {

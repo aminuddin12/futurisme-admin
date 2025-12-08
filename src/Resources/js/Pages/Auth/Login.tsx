@@ -2,8 +2,6 @@ import { useEffect, useState, FormEventHandler, CSSProperties } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// Components
 import Checkbox from '../../Components/Checkbox';
 import InputError from '../../Components/InputError';
 import InputLabel from '../../Components/InputLabel';
@@ -14,35 +12,26 @@ import AuthArtwork from './AuthArtwork';
 import ThemeToggle from '../../Components/Theme/ThemeToggle';
 import { safeRoute } from '../../Utils/routeHelper';
 
-// Define Props Interface
 interface LoginProps {
     status?: string;
     canResetPassword?: boolean;
-    canRegister?: boolean; // Menambahkan prop canRegister yang dikirim dari Backend
+    canRegister?: boolean; 
 }
 
-export default function Login({ status, canResetPassword, canRegister }: LoginProps) {
-    // 1. Ambil Config Global (Untuk Site Name, Logo, Prefix, & Theme)
+export default function Login({ status }: LoginProps) {
     const { config, flash } = usePage().props as any;
 
-    // --- CONFIGURATION MAPPING ---
-    
-    // Site Identity
     const appName = config?.site_name || 'Futurisme Admin';
     const siteLogo = config?.logo_url;
-    const urlPrefix = config?.url_prefix || 'admin'; // Sesuai JSON: config.url_prefix
+    const urlPrefix = config?.admin_url_prefix || 'admin'; 
     
-    // Theme Settings
+
+    const canRegister = config?.auth?.public_can_register ?? false;
+    const canResetPassword = config?.auth?.public_can_reset_password ?? true;
+
     const rawPrimaryColor = config?.theme?.color_primary;
     const primaryColor = (rawPrimaryColor === 'default' || !rawPrimaryColor) ? '#4f46e5' : rawPrimaryColor;
 
-    // LOGIC PERBAIKAN:
-    // Kita gunakan langsung props 'canRegister' dan 'canResetPassword' yang dikirim Controller.
-    // Tidak perlu parsing dari config global yang kompleks.
-    const showRegister = canRegister === true;
-    const showForgotPassword = canResetPassword === true;
-
-    // -----------------------------------------------
 
     const [showFlash, setShowFlash] = useState(false);
     const [flashContent, setFlashContent] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -59,7 +48,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
         };
     }, []);
 
-    // Flash Message Logic
     useEffect(() => {
         let message = null;
         let type: 'success' | 'error' = 'success';
@@ -90,7 +78,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
         post(url);
     };
 
-    // Styling Objects
     const dynamicPrimaryStyle: CSSProperties = {
         backgroundColor: primaryColor,
         borderColor: primaryColor,
@@ -107,8 +94,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
     return (
         <div className="flex min-h-screen bg-white dark:bg-gray-950 overflow-hidden transition-colors duration-500">
             <Head title={`${appName} - Login`} />
-
-            {/* --- FLASH MESSAGE WRAPPER --- */}
             <div className="fixed top-24 right-6 z-50 w-full max-w-sm flex flex-col items-end pointer-events-none">
                  <AnimatePresence>
                     {showFlash && flashContent && (
@@ -143,29 +128,23 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                 </AnimatePresence>
             </div>
 
-            {/* --- LAYOUT KIRI: ARTWORK (60%) --- */}
             <div className="hidden lg:block lg:w-[60%] relative bg-slate-900 border-r border-gray-100 dark:border-gray-800 z-0">
                 <AuthArtwork appName={appName} />
             </div>
-
-            {/* --- LAYOUT KANAN: FORM (40%) --- */}
             <div className="w-full lg:w-[40%] flex flex-col justify-center items-center px-6 sm:px-12 lg:px-16 xl:px-24 relative z-10">
                 
-                {/* Theme Toggle */}
                 <div className="absolute top-6 right-6 z-40">
                     <ThemeToggle /> 
                 </div>
 
                 <div className="w-full max-w-[420px]">
                     
-                    {/* Header Section */}
                     <motion.div 
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
                         className="mb-10 text-center lg:text-left"
                     >
-                        {/* LOGO HANDLING */}
                         <div className="inline-flex items-center justify-center lg:justify-start gap-4 mb-8">
                             {siteLogo && siteLogo !== 'default_logo' ? (
                                 <motion.img 
@@ -206,7 +185,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
                         <div className="space-y-5">
-                            {/* Email Input */}
                             <div>
                                 <InputLabel htmlFor="email" value="Email Address" className="mb-2 text-gray-700 dark:text-gray-300 font-semibold text-xs uppercase tracking-wider" />
                                 <div className="relative group">
@@ -229,7 +207,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                                 <InputError message={errors.email} className="mt-2" />
                             </div>
 
-                            {/* Password Input */}
                             <div>
                                 <div className="flex items-center justify-between mb-2">
                                     <InputLabel htmlFor="password" value="Password" className="text-gray-700 dark:text-gray-300 font-semibold text-xs uppercase tracking-wider" />
@@ -255,7 +232,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                             </div>
                         </div>
 
-                        {/* Actions Row */}
                         <div className="flex items-center justify-between pt-2">
                             <label className="flex items-center cursor-pointer group select-none">
                                 <Checkbox
@@ -267,8 +243,7 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                                 <span className="ml-2.5 text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">Keep me signed in</span>
                             </label>
 
-                            {/* Forgot Password Link - Gunakan showForgotPassword */}
-                            {showForgotPassword && (
+                            {canResetPassword && (
                                 <a
                                     href={safeRoute('futurisme.password.request', `/${urlPrefix}/forgot-password`)}
                                     className="text-sm font-semibold hover:underline transition-all opacity-90 hover:opacity-100"
@@ -278,8 +253,6 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                                 </a>
                             )}
                         </div>
-
-                        {/* Submit Button */}
                         <PrimaryButton 
                             className="w-full justify-center py-4 rounded-xl text-white shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-1 hover:shadow-xl font-bold text-[15px] tracking-wide" 
                             disabled={processing}
@@ -298,9 +271,7 @@ export default function Login({ status, canResetPassword, canRegister }: LoginPr
                             )}
                         </PrimaryButton>
                     </motion.form>
-
-                    {/* Footer / Register - Gunakan showRegister */}
-                    {showRegister && (
+                    {canRegister && (
                          <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
