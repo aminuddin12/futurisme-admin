@@ -7,6 +7,7 @@ use Aminuddin12\FuturismeAdmin\Http\Controllers\Auth\ForgotPasswordController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\SetupController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\DashboardController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\RoleController;
+use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SettingsController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SidebarController;
 use Aminuddin12\FuturismeAdmin\Http\Middleware\EnsureSetupIsNotCompleted;
 use Aminuddin12\FuturismeAdmin\Http\Middleware\HandleInertiaRequests;
@@ -18,7 +19,7 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
-$adminPrefix = config('fu-admin.url_prefix', 'admin');
+$adminPrefix = config('fu-admin.admin_url_prefix', 'admin');
 
 // 1. Group Utama: Web + Inertia Shared Data
 Route::middleware(['web', HandleInertiaRequests::class])->group(function () use ($adminPrefix) {
@@ -57,24 +58,16 @@ Route::middleware(['web', HandleInertiaRequests::class])->group(function () use 
 
             // Dashboard Route menggunakan Controller
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('futurisme.dashboard');
-            // Jika ingin akses via /dashboard juga bisa ditambahkan alias atau redirect, 
-            // tapi biasanya root prefix admin sudah cukup.
-            // Route::get('/dashboard', [DashboardController::class, 'index'])->name('futurisme.dashboard.alt'); 
+            // Roles & Permissions
+            Route::get('/roles', [RoleController::class, 'index'])->name('futurisme.roles.index');
+            Route::post('/roles', [RoleController::class, 'store'])->name('futurisme.roles.store');
+            Route::put('/roles/{id}', [RoleController::class, 'update'])->name('futurisme.roles.update');
+            Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('futurisme.roles.destroy');
+            // ... (permission routes) ...
 
-            // --- MANAGEMENT ROUTES ---
-            
-            // Roles & Permissions Management
-            Route::resource('roles', RoleController::class)
-                ->names('futurisme.roles');
-            
-            // Sidebar Management
-            Route::resource('sidebars', SidebarController::class)
-                ->names('futurisme.sidebars');
-
-            // Settings Page
-            Route::get('/settings', function () {
-                return Inertia::render('Settings/Index')->rootView('futurisme::app');
-            })->name('futurisme.settings');
-        });
+            // SETTINGS ROUTES (BARU)
+            Route::get('/settings', [SettingsController::class, 'index'])->name('futurisme.settings.index');
+            Route::put('/settings', [SettingsController::class, 'update'])->name('futurisme.settings.update');
+            });
     });
 });

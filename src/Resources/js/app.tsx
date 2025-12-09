@@ -6,10 +6,8 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from './Components/Theme/ThemeContext'; // Import Provider
 
-const appName = import.meta.env.VITE_APP_NAME || 'Futurisme Admin';
-
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,
