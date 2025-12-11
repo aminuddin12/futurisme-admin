@@ -4,11 +4,12 @@ import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { safeRoute } from '../../Utils/routeHelper';
 
-// Definisi Interface Menu (Lokal, Murni dari Database Struktur)
+// Updated Interface: Added 'route' field
 export interface SidebarMenuItem {
     id: number;
     title: string;
     url: string | null;
+    route: string | null; // New field from DB
     icon: string | null;
     parent_id: number | null;
     order: number;
@@ -24,7 +25,7 @@ interface Props {
 }
 
 export default function SidebarItem({ item, collapsed }: Props) {
-    const { url, props } = usePage();
+    const { url: currentUrl, props } = usePage();
     const { config } = props as any;
 
     const urlPrefix = config?.admin_url_prefix || 'admin';
@@ -37,54 +38,77 @@ export default function SidebarItem({ item, collapsed }: Props) {
 
     const hasChildren = Array.isArray(item.children) && item.children.length > 0;
 
-    const getHref = (menuUrl: string | null): string => {
-        if (!menuUrl) return '#';
-        const isRouteName = menuUrl.includes('.') && !menuUrl.includes('/');
-        
-        if (isRouteName) {
+    // --- 1. Helper: Generate Secure Href ---
+    const getHref = (menuItem: SidebarMenuItem): string => {
+        // A. Prioritas 1: Named Route (futurisme.dashboard)
+        if (menuItem.route) {
             try {
-                return safeRoute(menuUrl, '#');
-            } catch {
+                // Gunakan safeRoute untuk meresolve nama route
+                // Fallback ke '#' jika route belum ada di Ziggy
+                return safeRoute(menuItem.route, '#');
+            } catch (e) {
+                console.warn(`Route '${menuItem.route}' not found in Ziggy.`);
                 return '#';
             }
-        } else {
-            const cleanPath = menuUrl.startsWith('/') ? menuUrl.substring(1) : menuUrl;
+        }
+
+        // B. Prioritas 2: Manual URL (/dashboard)
+        if (menuItem.url) {
+            // Jika URL absolute (http/https), pakai langsung
+            if (menuItem.url.startsWith('http')) return menuItem.url;
+            
+            // Jika URL root relative (/dashboard), tambahkan prefix admin
+            // Hapus slash depan agar tidak double slash
+            const cleanPath = menuItem.url.startsWith('/') ? menuItem.url.substring(1) : menuItem.url;
             return `/${urlPrefix}/${cleanPath}`;
         }
+
+        return '#';
     };
 
-    const itemHref = getHref(item.url);
+    const itemHref = getHref(item);
 
-    const checkActive = (menuUrl: string | null, children?: SidebarMenuItem[]): boolean => {
-        if (!menuUrl && !children) return false;
-        
-        const safeUrl = url || '';
-        const currentPath = safeUrl.startsWith('/') ? safeUrl.substring(1) : safeUrl;
-
+    // --- 2. Helper: Check Active State ---
+    const checkActive = (menuItem: SidebarMenuItem, children?: SidebarMenuItem[]): boolean => {
+        // Recursive check for children first
         if (children && children.length > 0) {
-            return children.some(child => checkActive(child.url, child.children));
+            return children.some(child => checkActive(child, child.children));
         }
 
-        if (menuUrl) {
-            if (menuUrl.includes('.') && !menuUrl.includes('/')) {
-                try {
-                    return route().current(menuUrl + '*');
-                } catch { return false; }
+        // Clean current URL (remove leading slash)
+        const safeCurrentUrl = currentUrl.startsWith('/') ? currentUrl.substring(1) : currentUrl;
+
+        // A. Check by Route Name
+        if (menuItem.route) {
+            try {
+                // route().current() supports wildcards
+                return route().current(menuItem.route + '*');
+            } catch { 
+                return false; 
             }
-            const targetPath = menuUrl.startsWith('/') ? menuUrl.substring(1) : menuUrl;
-            const fullTargetPath = `${urlPrefix}/${targetPath}`;
-            return currentPath === fullTargetPath || currentPath.startsWith(fullTargetPath + '/');
         }
+
+        // B. Check by URL Path
+        if (menuItem.url) {
+            const cleanItemUrl = menuItem.url.startsWith('/') ? menuItem.url.substring(1) : menuItem.url;
+            // Construct full path: admin/dashboard
+            const fullTargetPath = `${urlPrefix}/${cleanItemUrl}`;
+            
+            // Exact match or starts with (for sub-pages)
+            return safeCurrentUrl === fullTargetPath || safeCurrentUrl.startsWith(fullTargetPath + '/');
+        }
+
         return false;
     };
 
-    const isActive = checkActive(item.url, item.children);
-    const isChildActive = hasChildren && item.children!.some(child => checkActive(child.url, child.children));
+    const isActive = checkActive(item, item.children);
+    const isChildActive = hasChildren && item.children!.some(child => checkActive(child, child.children));
 
     useEffect(() => {
         if (isChildActive && !collapsed) setIsOpen(true);
     }, [isChildActive, collapsed]);
 
+    // --- Event Handlers ---
     const handleClick = (e: React.MouseEvent) => {
         if (hasChildren && !collapsed) {
             e.preventDefault();
@@ -103,6 +127,7 @@ export default function SidebarItem({ item, collapsed }: Props) {
         hoverTimeoutRef.current = setTimeout(() => setIsHovered(false), 150); 
     };
 
+    // --- Styling ---
     const indicatorStyle: CSSProperties = {
         backgroundColor: isActive ? secondaryColor : 'transparent',
     };
@@ -127,6 +152,7 @@ export default function SidebarItem({ item, collapsed }: Props) {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
+            {/* Main Item */}
             {hasChildren && !collapsed ? (
                 <div onClick={handleClick} className={containerClasses} title={item.title}>
                     <ItemContent 
@@ -149,6 +175,7 @@ export default function SidebarItem({ item, collapsed }: Props) {
                 </Link>
             )}
 
+            {/* Tooltip for Collapsed Mode */}
             <AnimatePresence>
                 {collapsed && isHovered && (
                     <motion.div
@@ -181,6 +208,7 @@ export default function SidebarItem({ item, collapsed }: Props) {
                 )}
             </AnimatePresence>
 
+            {/* Submenu for Expanded Mode */}
             <AnimatePresence>
                 {isOpen && hasChildren && !collapsed && (
                     <motion.ul
@@ -190,6 +218,7 @@ export default function SidebarItem({ item, collapsed }: Props) {
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                         className="overflow-hidden space-y-0.5 mt-1 relative"
                     >
+                        {/* Connecting Line */}
                         <div className="absolute left-[21px] top-0 bottom-0 w-px bg-gray-200 dark:bg-gray-800"></div>
                         
                         {item.children!.map((child) => (
@@ -211,6 +240,7 @@ function ItemContent({
 }) {
     return (
         <>
+            {/* Active Indicator */}
             {isActive && (
                 <motion.div 
                     layoutId="activeStrip"
@@ -220,6 +250,7 @@ function ItemContent({
             )}
 
             <div className={`flex items-center ${collapsed ? 'justify-center w-full' : 'gap-3 w-full'}`}>
+                {/* Icon */}
                 <div className={`
                     flex-shrink-0 flex items-center justify-center transition-all duration-300
                     ${collapsed ? 'w-6 h-6' : 'w-5 h-5 ml-1'}
@@ -231,6 +262,7 @@ function ItemContent({
                     )}
                 </div>
 
+                {/* Text & Chevron */}
                 {!collapsed && (
                     <div className="flex-1 flex items-center justify-between min-w-0 overflow-hidden">
                         <span className="text-sm font-medium truncate leading-none pt-0.5">

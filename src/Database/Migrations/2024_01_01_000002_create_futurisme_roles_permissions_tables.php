@@ -60,6 +60,7 @@ return new class extends Migration
             $table->string('group')->default('general');
             $table->string('title');
             $table->string('url')->nullable();
+            $table->string('route')->nullable();
             $table->string('icon')->nullable();
             $table->foreignId('parent_id')->nullable()->constrained('futurisme_sidebars')->onDelete('cascade');
             $table->integer('order')->default(0);

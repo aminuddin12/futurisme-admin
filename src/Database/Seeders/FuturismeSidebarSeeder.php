@@ -29,9 +29,10 @@ class FuturismeSidebarSeeder extends Seeder
 
         // 1. Dashboard
         FuturismeSidebar::firstOrCreate(
-            ['title' => 'Dashboard', 'group' => $mainGroup], // Kunci pencarian unik
+            ['title' => 'Dashboard', 'group' => $mainGroup],
             [
-                'url' => 'futurisme.dashboard',
+                'url' => '/dashboard', // URL Path
+                'route' => 'futurisme.dashboard', // Named Route
                 'icon' => 'solar:home-bold-duotone',
                 'order' => 1,
                 'permission_name' => 'view dashboard',
@@ -41,17 +42,18 @@ class FuturismeSidebarSeeder extends Seeder
             ]
         );
 
-        // 2. Analytics (Contoh Menu Tambahan)
+        // 2. Analytics (Contoh)
         FuturismeSidebar::firstOrCreate(
             ['title' => 'Analytics', 'group' => $mainGroup],
             [
-                'url' => 'futurisme.dashboard', // Bisa diganti route analytics
+                'url' => '/analytics',
+                'route' => null, // Contoh tanpa route name
                 'icon' => 'solar:chart-square-bold-duotone',
                 'order' => 2,
                 'permission_name' => 'view analytics',
                 'by_module' => $by_module,
                 'add_by' => $add_by,
-                'is_active' => 0, // Default non-aktif, contoh
+                'is_active' => 0,
             ]
         );
 
@@ -63,7 +65,8 @@ class FuturismeSidebarSeeder extends Seeder
         $userMenu = FuturismeSidebar::firstOrCreate(
             ['title' => 'User Management', 'group' => $managementGroup],
             [
-                'url' => null, // Parent menu biasanya null
+                'url' => null,
+                'route' => null,
                 'icon' => 'solar:users-group-rounded-bold-duotone',
                 'order' => 1,
                 'permission_name' => 'view users',
@@ -78,7 +81,8 @@ class FuturismeSidebarSeeder extends Seeder
                 ['title' => 'All Users', 'parent_id' => $userMenu->id],
                 [
                     'group' => $managementGroup,
-                    'url' => 'futurisme.users.index', // Pastikan route ini ada nanti
+                    'url' => '/users',
+                    'route' => 'futurisme.users.index', // Pastikan route ini ada nanti
                     'icon' => 'solar:user-circle-bold-duotone',
                     'order' => 1,
                     'permission_name' => 'view users',
@@ -93,6 +97,7 @@ class FuturismeSidebarSeeder extends Seeder
             ['title' => 'Role & Permissions', 'group' => $managementGroup],
             [
                 'url' => null,
+                'route' => null,
                 'icon' => 'solar:shield-keyhole-bold-duotone',
                 'order' => 2,
                 'permission_name' => 'view roles',
@@ -107,7 +112,8 @@ class FuturismeSidebarSeeder extends Seeder
                 ['title' => 'Roles', 'parent_id' => $aclMenu->id],
                 [
                     'group' => $managementGroup,
-                    'url' => 'futurisme.roles.index',
+                    'url' => '/roles',
+                    'route' => 'futurisme.roles.index',
                     'icon' => 'solar:key-minimalistic-square-bold-duotone',
                     'order' => 1,
                     'permission_name' => 'manage roles',
@@ -117,13 +123,13 @@ class FuturismeSidebarSeeder extends Seeder
                 ]
             );
 
-            // Submenu: Permissions (Contoh jika ingin dipisah)
-            // Di controller sebelumnya kita gabung dalam satu halaman, tapi menu bisa dipisah jika mau
+            // Submenu: Permissions
             FuturismeSidebar::firstOrCreate(
                 ['title' => 'Permissions', 'parent_id' => $aclMenu->id],
                 [
                     'group' => $managementGroup,
-                    'url' => 'futurisme.roles.index', // Mengarah ke halaman sama tapi mungkin tab beda query
+                    'url' => '/permissions', // Contoh path beda
+                    'route' => 'futurisme.roles.index', // Route sama (mungkin tab beda)
                     'icon' => 'solar:lock-keyhole-minimalistic-bold-duotone',
                     'order' => 2,
                     'permission_name' => 'manage permissions',
@@ -134,20 +140,21 @@ class FuturismeSidebarSeeder extends Seeder
             );
 
         // =====================================================================
-        // GROUP: APPLICATION (Contoh Modul Masa Depan)
+        // GROUP: APPLICATION
         // =====================================================================
 
-        // 1. Transactions (Contoh)
+        // 1. Transactions
         FuturismeSidebar::firstOrCreate(
             ['title' => 'Transactions', 'group' => $applicationGroup],
             [
-                'url' => '#',
+                'url' => '/transactions',
+                'route' => null,
                 'icon' => 'solar:card-transfer-bold-duotone',
                 'order' => 1,
                 'permission_name' => 'view transactions',
                 'by_module' => $by_module,
                 'add_by' => $add_by,
-                'is_active' => 0, // Placeholder
+                'is_active' => 0,
             ]
         );
 
@@ -159,7 +166,8 @@ class FuturismeSidebarSeeder extends Seeder
         FuturismeSidebar::firstOrCreate(
             ['title' => 'System Settings', 'group' => $systemGroup],
             [
-                'url' => 'futurisme.settings.index',
+                'url' => '/settings',
+                'route' => 'futurisme.settings.index',
                 'icon' => 'solar:settings-bold-duotone',
                 'order' => 1,
                 'permission_name' => 'manage settings',
@@ -169,11 +177,12 @@ class FuturismeSidebarSeeder extends Seeder
             ]
         );
 
-        // 2. Sidebar Manager (Contoh Self-Management)
+        // 2. Menu Manager
         FuturismeSidebar::firstOrCreate(
             ['title' => 'Menu Manager', 'group' => $systemGroup],
             [
-                'url' => '#', 
+                'url' => '/menus',
+                'route' => null,
                 'icon' => 'solar:list-bold-duotone',
                 'order' => 2,
                 'permission_name' => 'manage sidebar',
@@ -183,11 +192,12 @@ class FuturismeSidebarSeeder extends Seeder
             ]
         );
 
-        // 3. Logs
+        // 3. System Logs
         FuturismeSidebar::firstOrCreate(
             ['title' => 'System Logs', 'group' => $systemGroup],
             [
-                'url' => '#',
+                'url' => '/logs',
+                'route' => null,
                 'icon' => 'solar:clipboard-list-bold-duotone',
                 'order' => 3,
                 'permission_name' => 'view logs',
@@ -205,10 +215,11 @@ class FuturismeSidebarSeeder extends Seeder
         FuturismeSidebar::firstOrCreate(
             ['title' => 'My Profile', 'group' => $userGroup],
             [
-                'url' => 'futurisme.profile.edit', // Pastikan route profile ada
+                'url' => '/profile',
+                'route' => 'futurisme.profile.edit',
                 'icon' => 'solar:user-id-bold-duotone',
                 'order' => 1,
-                'permission_name' => null, // Biasanya semua user login boleh akses
+                'permission_name' => null,
                 'by_module' => $by_module,
                 'add_by' => $add_by,
                 'is_active' => 1,

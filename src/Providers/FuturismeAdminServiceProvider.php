@@ -4,6 +4,7 @@ namespace Aminuddin12\FuturismeAdmin\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Aminuddin12\FuturismeAdmin\Console\Commands\InstallFuturismeAdmin;
+use Aminuddin12\FuturismeAdmin\Console\Commands\UpdateFuturismeAdmin;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeSetting;
@@ -17,6 +18,7 @@ class FuturismeAdminServiceProvider extends ServiceProvider
 
         // Load Routes & Views
         $this->loadRoutesFrom($packageRoot.'routes/web.php');
+        $this->loadRoutesFrom($packageRoot.'routes/assets.php');
         $this->loadViewsFrom($packageRoot.'src/Resources/views', 'futurisme');
         $this->loadMigrationsFrom($packageRoot.'src/Database/Migrations');
 
@@ -30,7 +32,10 @@ class FuturismeAdminServiceProvider extends ServiceProvider
         $router->aliasMiddleware('futurisme.setup_check', \Aminuddin12\FuturismeAdmin\Http\Middleware\EnsureSetupIsCompleted::class);
 
         if ($this->app->runningInConsole()) {
-            $this->commands([InstallFuturismeAdmin::class]);
+            $this->commands([
+                InstallFuturismeAdmin::class,
+                UpdateFuturismeAdmin::class,
+            ]);
             
             // Publishes... (sama seperti sebelumnya)
             $this->publishes([$packageRoot.'src/Config/fu-admin.php' => config_path('fu-admin.php')], 'futurisme-config');

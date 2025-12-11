@@ -23,6 +23,14 @@ class SetupController extends FuturismeBaseController
 {
     public function viewConfig()
     {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('vendor:publish', [
+                '--tag' => 'futurisme-assets',
+                '--force' => true
+            ]);
+        } catch (\Exception $e) {
+            Log::warning('Gagal auto-publish assets: ' . $e->getMessage());
+        }
         $unconfiguredModules = FuturismeModule::whereNull('data')->get();
 
         if ($unconfiguredModules->isEmpty()) {
@@ -258,7 +266,6 @@ class SetupController extends FuturismeBaseController
                 }
 
                 if (!isset($errors[$key])) {
-                    // Validasi Mandatory Fields
                     if ($key === 'app.name' && empty($value)) {
                         $errors[$inputKey] = 'Application Name is required.';
                     }
@@ -284,8 +291,6 @@ class SetupController extends FuturismeBaseController
 
                     if (empty($errors[$inputKey])) {
                         $settingsToSave[$key] = $value;
-
-                        // Check Env Value Changes
                         $envKeyMap = [
                             'app.name' => 'APP_NAME',
                             'app.desc' => 'APP_DESC',
@@ -321,8 +326,6 @@ class SetupController extends FuturismeBaseController
                         if (isset($envKeyMap[$key])) {
                             $envKey = $envKeyMap[$key];
                             $currentEnvValue = env($envKey);
-                            
-                            // Bandingkan value dengan env (perhatikan tipe data string/bool)
                             $normalizedValue = is_bool($value) ? ($value ? 'true' : 'false') : (string)$value;
                             $normalizedEnv = is_bool($currentEnvValue) ? ($currentEnvValue ? 'true' : 'false') : (string)$currentEnvValue;
 
@@ -330,8 +333,6 @@ class SetupController extends FuturismeBaseController
                                 $envUpdates[$envKey] = $value;
                             }
                         }
-                        
-                        // Update Database if changed
                         if ($setting->value != $value) {
                             $setting->update(['value' => $value]);
                         }
@@ -364,21 +365,17 @@ class SetupController extends FuturismeBaseController
             \Illuminate\Support\Facades\Artisan::call('route:clear');
         } catch (\Exception $e) {}
 
-        // Cek lagi apakah masih ada modul yang belum dikonfigurasi setelah penyimpanan
-        // Jika semua modul terisi, bisa langsung redirect ke admin
         $unconfiguredModules = FuturismeModule::whereNull('data')->get();
         if ($unconfiguredModules->isEmpty()) {
              return redirect()->route('futurisme.setup.admin')
                 ->with('status', 'Konfigurasi modul lengkap. Silakan buat akun admin.');
         }
 
-        // Jika masih ada setting umum yang kosong (fallback)
         $incompleteSettings = FuturismeSetting::whereNull('value')->count();
         if ($incompleteSettings > 0) {
             return redirect()->back()->with('warning', "Konfigurasi tersimpan, namun masih ada {$incompleteSettings} pengaturan yang kosong.");
         }
 
-        // Default: Refresh halaman ini atau ke modul berikutnya (jika frontend handle tab)
         return redirect()->back()->with('success', 'Konfigurasi modul berhasil disimpan.');
     }
 

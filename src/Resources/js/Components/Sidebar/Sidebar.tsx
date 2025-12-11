@@ -13,6 +13,7 @@ export interface SidebarMenuItem {
     id: number;
     title: string;
     url: string | null;
+    route: string | null; 
     icon: string | null;
     parent_id: number | null;
     order: number;

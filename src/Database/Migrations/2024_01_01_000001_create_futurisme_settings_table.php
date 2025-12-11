@@ -11,15 +11,15 @@ return new class extends Migration
         Schema::create('futurisme_settings', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable(); 
-            $table->string('key')->unique();   // Contoh: 'site_name', 'auth.can_register'
+            $table->string('key')->unique();
             $table->json('option')->nullable(); 
-            $table->text('value')->nullable(); // Disimpan bisa dalam bentuk string atau JSON
-            $table->string('type')->default('string'); // string, boolean, json, integer
-            $table->string('group')->default('general'); // Untuk pengelompokan di UI
+            $table->text('value')->nullable(); 
+            $table->string('type')->default('string'); 
+            $table->string('group')->default('general'); 
             $table->string('form_type')->default('text');
             $table->integer('is_active')->default(1)->comment('1: default (update only), 2: full (full access), 3: disabled (readonly)');
             $table->string('by_module')->nullable()->index();
-            $table->string('add_by')->default('system'); // 'username' atau 'system'
+            $table->string('add_by')->default('system'); 
             $table->timestamps();
         });
     }

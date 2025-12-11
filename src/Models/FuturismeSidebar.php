@@ -15,6 +15,7 @@ class FuturismeSidebar extends Model
         'group',
         'title',
         'url',
+        'route',
         'icon',
         'parent_id',
         'order',

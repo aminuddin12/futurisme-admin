@@ -36,7 +36,7 @@ class FuturismeBaseController extends Controller
             'site_name' => $dbSettings['site_name'] ?? $defaultConfig['site_name'] ?? 'Futurisme Admin',
             'logo_url' => $dbSettings['logo_url'] ?? $defaultConfig['logo_url'] ?? null,
             'admin_url_prefix' => $defaultConfig['admin_url_prefix'] ?? 'admin',
-            'url_prefix' => $defaultConfig['admin_url_prefix'] ?? 'admin',
+            //'url_prefix' => $defaultConfig['admin_url_prefix'] ?? 'admin',
             
             'auth' => [
                 'public_can_register' => filter_var($dbSettings['auth_can_register'] ?? $defaultConfig['auth']['public_can_register'] ?? false, FILTER_VALIDATE_BOOLEAN),
