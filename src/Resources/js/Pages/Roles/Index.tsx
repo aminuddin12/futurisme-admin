@@ -4,13 +4,13 @@ import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Layouts & Components
-import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
-import PrimaryButton from '../../Components/PrimaryButton';
-import TextInput from '../../Components/TextInput';
-import InputLabel from '../../Components/InputLabel';
-import InputError from '../../Components/InputError';
-import Modal from '../../Components/UI/Modal';
-import { safeRoute } from '../../Utils/routeHelper';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
+import Modal from '@/Components/UI/Modal';
+import { safeRoute } from '@/Utils/routeHelper';
 
 // Types
 interface Role {

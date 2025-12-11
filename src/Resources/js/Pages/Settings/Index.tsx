@@ -2,13 +2,13 @@ import { useState, ChangeEvent, CSSProperties } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 
-import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
-import PrimaryButton from '../../Components/PrimaryButton';
-import TextInput from '../../Components/TextInput';
-import InputLabel from '../../Components/InputLabel';
-import InputError from '../../Components/InputError';
-import Checkbox from '../../Components/Checkbox';
-import { safeRoute } from '../../Utils/routeHelper';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
+import Checkbox from '@/Components/Checkbox';
+import { safeRoute } from '@/Utils/routeHelper';
 
 // Interface sesuai data controller
 interface SettingsProps {

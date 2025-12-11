@@ -8,6 +8,7 @@ use Aminuddin12\FuturismeAdmin\Console\Commands\UpdateFuturismeAdmin;
 use Aminuddin12\FuturismeAdmin\Console\Commands\RollbackFuturismeAdmin;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Gate;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeSetting;
 use Illuminate\Routing\Router;
 
@@ -17,12 +18,19 @@ class FuturismeAdminServiceProvider extends ServiceProvider
     {
         $packageRoot = __DIR__.'/../../';
 
+        // Load Routes
         $this->loadRoutesFrom($packageRoot.'routes/web.php');
-        $this->loadRoutesFrom($packageRoot.'routes/assets.php'); 
+        
+        // Defensive Load: Hanya load assets.php jika file ada
+        if (file_exists($packageRoot.'routes/assets.php')) {
+            $this->loadRoutesFrom($packageRoot.'routes/assets.php'); 
+        }
+        
         $this->loadViewsFrom($packageRoot.'src/Resources/views', 'futurisme');
         $this->loadMigrationsFrom($packageRoot.'src/Database/Migrations');
 
         $this->configureAuth();
+        $this->configureGates();
 
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('futurisme.auth', \Aminuddin12\FuturismeAdmin\Http\Middleware\Authenticate::class);
@@ -43,11 +51,23 @@ class FuturismeAdminServiceProvider extends ServiceProvider
         $this->configureDynamicSettings();
     }
 
+    /**
+     * Konfigurasi Gate Authorization
+     */
+    protected function configureGates()
+    {
+        Gate::before(function ($user, $ability) {
+            if (method_exists($user, 'hasRole') && $user->hasRole('super-admin')) {
+                return true;
+            }
+        });
+    }
+
     protected function configureDynamicSettings()
     {
         if (! $this->app->runningInConsole() || ! app()->runningUnitTests()) {
-            if (Schema::hasTable('futurisme_settings')) {
-                try {
+            try {
+                if (Schema::hasTable('futurisme_settings')) {
                     $settings = FuturismeSetting::all();
                     foreach ($settings as $setting) {
                         $value = $setting->value;
@@ -57,8 +77,9 @@ class FuturismeAdminServiceProvider extends ServiceProvider
 
                         Config::set('fu-admin.' . $setting->key, $value);
                     }
-                } catch (\Exception $e) {
                 }
+            } catch (\Exception $e) {
+                // Silent fail agar tidak crash saat boot
             }
         }
     }
@@ -80,7 +101,6 @@ class FuturismeAdminServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../../src/Config/fu-admin.php', 'fu-admin');
         
         $ziggyProvider = '\Tightenco\Ziggy\ZiggyServiceProvider';
-
         if (class_exists($ziggyProvider)) {
             if (! $this->app->getProviders($ziggyProvider)) {
                 $this->app->register($ziggyProvider);

@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import AuthenticatedLayout from '../Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import styles from './Dashboard.module.css';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';

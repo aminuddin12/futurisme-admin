@@ -1,0 +1,1 @@
+import{j as o}from"./BeCmri_R.js";function s({className:s="",...r}){return o.jsx("input",{...r,type:"checkbox",className:`rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 w-4 h-4 ${s}`})}export{s as C};

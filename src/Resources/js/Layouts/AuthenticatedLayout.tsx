@@ -1,8 +1,8 @@
 import { useState, PropsWithChildren, ReactNode } from 'react';
 import { Head, usePage } from '@inertiajs/react';
-import Sidebar from '../Components/Sidebar/Sidebar';
-import Header from '../Components/Header/Header';
-import FlashMessage from '../Components/Message/FlashMessage';
+import Sidebar from '@/Components/Sidebar/Sidebar';
+import Header from '@/Components/Header/Header';
+import FlashMessage from '@/Components/Message/FlashMessage';
 
 interface AuthenticatedProps {
     header?: string;

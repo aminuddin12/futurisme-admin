@@ -69,8 +69,8 @@ export default function LogoDefault({
     );
 
     return (
-        <div className={`  flex   items-center   justify-center   gap-3 ${className}`} {...props}>
-            <Link href={href} className="  flex   items-center   gap-3   group   no-underline">
+        <div className={`flex items-center justify-center gap-3 ${className}`} {...props}>
+            <Link href={href} className="flex items-center gap-3 group no-underline">
                 {/* Bagian Icon */}
                 <div className="transition-transform duration-300 group-hover:rotate-12">
                     <LogoSVG />

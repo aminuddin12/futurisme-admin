@@ -5,11 +5,11 @@ import path from 'path';
 import fs from 'fs';
 
 export default defineConfig(({ mode }) => {
-    const hostPath = path.resolve(__dirname, '../../../../');
-    const isMonorepoDev = fs.existsSync(path.join(hostPath, 'artisan'));
-    const buildPath = isMonorepoDev 
-        ? path.join(hostPath, 'public/vendor/futurisme-admin') 
-        : 'public/vendor/futurisme-admin';
+    const hostPath = path.resolve(__dirname, '../../../'); 
+    
+    const buildPath = 'public/vendor/futurisme-admin';
+
+    console.log(`   📂 Build Output: ${buildPath} (Package Local)`);
 
     return {
         plugins: [
@@ -20,9 +20,7 @@ export default defineConfig(({ mode }) => {
                 ],
                 buildDirectory: 'vendor/futurisme-admin',
                 refresh: ['src/Resources/views/**'],
-                hotFile: isMonorepoDev 
-                    ? path.join(hostPath, 'public/vendor/futurisme-admin/hot')
-                    : 'public/vendor/futurisme-admin/hot',
+                hotFile: path.join(hostPath, 'public/vendor/futurisme-admin/hot'),
             }),
             react(),
         ],
@@ -30,11 +28,29 @@ export default defineConfig(({ mode }) => {
             outDir: buildPath, 
             emptyOutDir: true,
             manifest: true,
+            minify: 'terser',
+            terserOptions: {
+                compress: {
+                    drop_console: true,
+                    drop_debugger: true,
+                    pure_funcs: ['console.log', 'console.info', 'console.warn'],
+                    passes: 2, 
+                },
+                mangle: true,
+                format: {
+                    comments: false,
+                },
+            },
             rollupOptions: {
                 output: {
-                    entryFileNames: 'assets/[name]-[hash].js',
-                    chunkFileNames: 'assets/[name]-[hash].js',
-                    assetFileNames: 'assets/[name]-[hash].[ext]',
+                    entryFileNames: 'assets/[hash].js',
+                    chunkFileNames: 'assets/[hash].js',
+                    assetFileNames: 'assets/[hash].[ext]',
+                    manualChunks: (id) => {
+                        if (id.includes('node_modules')) {
+                            return 'vendor';
+                        }
+                    },
                 },
             },
         },

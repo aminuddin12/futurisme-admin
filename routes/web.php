@@ -9,24 +9,13 @@ use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\DashboardController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\RoleController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SettingsController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SidebarController;
-use Aminuddin12\FuturismeAdmin\Http\Middleware\EnsureSetupIsNotCompleted;
 use Aminuddin12\FuturismeAdmin\Http\Middleware\HandleInertiaRequests;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 $adminPrefix = config('fu-admin.admin_url_prefix', 'admin');
 
-// 1. Group Utama: Web + Inertia Shared Data
 Route::middleware(['web', HandleInertiaRequests::class])->group(function () use ($adminPrefix) {
 
-    // ---------------------------------------------------------------------
-    // A. SETUP WIZARD (Public Access, tapi diblokir jika setup selesai)
-    // ---------------------------------------------------------------------
     Route::middleware(['web', 'futurisme.setup_check'])->group(function () {
         Route::get('/fu-settings', [SetupController::class, 'viewConfig'])->name('futurisme.setup.config');
         Route::post('/fu-settings/save', [SetupController::class, 'storeConfig'])->name('futurisme.setup.config.store');
@@ -35,12 +24,8 @@ Route::middleware(['web', HandleInertiaRequests::class])->group(function () use 
         Route::post('/fu-settings/admin/save', [SetupController::class, 'storeAdmin'])->name('futurisme.setup.admin.store');
     });
 
-    // ---------------------------------------------------------------------
-    // B. MAIN ADMIN ROUTES (Butuh Setup Selesai)
-    // ---------------------------------------------------------------------
     Route::middleware(['futurisme.setup_check'])->prefix($adminPrefix)->group(function () {
         
-        // 1. Guest Routes (Login, Register, Forgot Password)
         Route::middleware('guest:futurisme')->group(function () {
             Route::get('login', [LoginController::class, 'create'])->name('futurisme.login');
             Route::post('login', [LoginController::class, 'store'])->name('futurisme.login.store');
@@ -52,22 +37,24 @@ Route::middleware(['web', HandleInertiaRequests::class])->group(function () use 
             Route::post('forgot-password', [ForgotPasswordController::class, 'store'])->name('futurisme.password.email');
         });
 
-        // 2. Authenticated Routes (Dashboard, Logout, & Management)
         Route::middleware('futurisme.auth:futurisme')->group(function () {
             Route::post('logout', [LoginController::class, 'destroy'])->name('futurisme.logout');
 
-            // Dashboard Route menggunakan Controller
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('futurisme.dashboard');
-            // Roles & Permissions
+            
             Route::get('/roles', [RoleController::class, 'index'])->name('futurisme.roles.index');
             Route::post('/roles', [RoleController::class, 'store'])->name('futurisme.roles.store');
             Route::put('/roles/{id}', [RoleController::class, 'update'])->name('futurisme.roles.update');
             Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('futurisme.roles.destroy');
-            // ... (permission routes) ...
 
-            // SETTINGS ROUTES (BARU)
             Route::get('/settings', [SettingsController::class, 'index'])->name('futurisme.settings.index');
             Route::put('/settings', [SettingsController::class, 'update'])->name('futurisme.settings.update');
-            });
+
+            Route::get('/sidebar', [SidebarController::class, 'index'])->name('futurisme.sidebar.index');
+            Route::post('/sidebar', [SidebarController::class, 'store'])->name('futurisme.sidebar.store');
+            Route::put('/sidebar/{id}', [SidebarController::class, 'update'])->name('futurisme.sidebar.update');
+            Route::delete('/sidebar/{id}', [SidebarController::class, 'destroy'])->name('futurisme.sidebar.destroy');
+            Route::post('/sidebar/reorder', [SidebarController::class, 'reorder'])->name('futurisme.sidebar.reorder');
+        });
     });
 });

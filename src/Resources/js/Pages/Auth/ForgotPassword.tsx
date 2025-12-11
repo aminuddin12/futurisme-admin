@@ -4,14 +4,14 @@ import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Components
-import InputError from '../../Components/InputError';
-import InputLabel from '../../Components/InputLabel';
-import PrimaryButton from '../../Components/PrimaryButton';
-import TextInput from '../../Components/TextInput';
-import LogoDefault from '../../Components/LogoDefault';
+import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import LogoDefault from '@/Components/LogoDefault';
 import AuthArtwork from './AuthArtwork';
-import ThemeToggle from '../../Components/Theme/ThemeToggle';
-import { safeRoute } from '../../Utils/routeHelper';
+import ThemeToggle from '@/Components/Theme/ThemeToggle';
+import { safeRoute } from '@/Utils/routeHelper';
 
 export default function ForgotPassword({ status }: { status?: string }) {
     // 1. Ambil Props & Config Global

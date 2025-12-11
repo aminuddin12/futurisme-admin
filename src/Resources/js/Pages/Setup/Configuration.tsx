@@ -2,12 +2,12 @@ import { useState, useMemo, useEffect } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import FaPublicLayout from '../../Layouts/FaPublicLayout';
-import DynamicSettingInput from '../../Components/Settings/DynamicSettingInput';
-import PrimaryButton from '../../Components/PrimaryButton';
+import FaPublicLayout from '@/Layouts/FaPublicLayout';
+import DynamicSettingInput from '@/Components/Settings/DynamicSettingInput';
+import PrimaryButton from '@/Components/PrimaryButton';
 import InstallationArtwork from './InstallationArtwork';
-import FlashMessage, { FlashType } from '../../Components/Message/FlashMessage';
-import { safeRoute } from '../../Utils/routeHelper';
+import FlashMessage, { FlashType } from '@/Components/Message/FlashMessage';
+import { safeRoute } from '@/Utils/routeHelper';
 
 // Interface untuk data Modul dari database (FuturismeModule)
 interface ModuleItem {

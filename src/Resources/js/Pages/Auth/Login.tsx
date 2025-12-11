@@ -2,15 +2,15 @@ import { useEffect, useState, FormEventHandler, CSSProperties } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Checkbox from '../../Components/Checkbox';
-import InputError from '../../Components/InputError';
-import InputLabel from '../../Components/InputLabel';
-import PrimaryButton from '../../Components/PrimaryButton';
-import TextInput from '../../Components/TextInput';
-import LogoDefault from '../../Components/LogoDefault';
+import Checkbox from '@/Components/Checkbox';
+import InputError from '@/Components/InputError';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import TextInput from '@/Components/TextInput';
+import LogoDefault from '@/Components/LogoDefault';
 import AuthArtwork from './AuthArtwork';
-import ThemeToggle from '../../Components/Theme/ThemeToggle';
-import { safeRoute } from '../../Utils/routeHelper';
+import ThemeToggle from '@/Components/Theme/ThemeToggle';
+import { safeRoute } from '@/Utils/routeHelper';
 
 interface LoginProps {
     status?: string;

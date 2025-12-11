@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { Icon } from '@iconify/react';
-import FaPublicLayout from '../../Layouts/FaPublicLayout';
-import TextInput from '../../Components/TextInput';
-import InputLabel from '../../Components/InputLabel';
-import InputError from '../../Components/InputError';
-import PrimaryButton from '../../Components/PrimaryButton';
+import FaPublicLayout from '@/Layouts/FaPublicLayout';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import InputError from '@/Components/InputError';
+import PrimaryButton from '@/Components/PrimaryButton';
 import InstallationArtwork from './InstallationArtwork';
-import FlashMessage, { FlashType } from '../../Components/Message/FlashMessage';
-import { safeRoute } from '../../Utils/routeHelper';
+import FlashMessage, { FlashType } from '@/Components/Message/FlashMessage';
+import { safeRoute } from '@/Utils/routeHelper';
 
 export default function AdminAccount() {
     // Hooks Inertia

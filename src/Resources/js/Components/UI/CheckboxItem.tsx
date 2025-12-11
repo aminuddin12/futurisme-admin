@@ -10,8 +10,7 @@ interface CheckboxItemProps {
 
 export default function CheckboxItem({ label, description, checked, onChange, error }: CheckboxItemProps) {
     return (
-        <div className={`
-            flex items-start p-3 rounded-xl border transition-all duration-200 cursor-pointer
+        <div className={`flex items-start p-3 rounded-xl border transition-all duration-200 cursor-pointer
             ${checked 
                 ? 'bg-indigo-50/50 border-indigo-200 dark:bg-indigo-900/10 dark:border-indigo-800' 
                 : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50'}
