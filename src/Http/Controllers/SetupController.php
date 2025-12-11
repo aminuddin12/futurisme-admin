@@ -429,7 +429,7 @@ class SetupController extends FuturismeBaseController
         ]);
 
         $superAdminRole = FuturismeRole::firstOrCreate(
-            ['name' => 'Super Admin'],
+            ['name' => 'super-admin'],
             ['guard_name' => 'futurisme']
         );
 

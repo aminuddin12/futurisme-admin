@@ -9,12 +9,49 @@ trait ManagesAssets
 {
     protected function syncAssets(): void
     {
+        if (!$this->verifyFrontendBuild()) {
+            $this->warn('WARNING: Frontend build assets not found in package source!');
+            $this->warn('Please run "npm run build" inside your package directory first.');
+            if (!$this->confirm('Do you want to continue anyway? (View might crash)', false)) {
+                throw new \RuntimeException('Installation aborted. Missing frontend assets.');
+            }
+        }
+
         $this->syncFiles('futurisme-assets', public_path('vendor/futurisme-admin'), __DIR__.'/../../../public/vendor/futurisme-admin');
         $this->syncFiles('futurisme-views', resource_path('views/vendor/futurisme'), __DIR__.'/../../Resources/views');
         $this->syncFiles('futurisme-config', config_path('fu-admin.php'), __DIR__.'/../../Config/fu-admin.php');
 
         if (!$this->isDeveloperMode()) {
             $this->checkForUpdates();
+        }
+    }
+
+    protected function verifyFrontendBuild(): bool
+    {
+        $manifestPath = __DIR__.'/../../../public/vendor/futurisme-admin/.vite/manifest.json';
+        return File::exists($manifestPath);
+    }
+
+    protected function removePublishedResources(): void
+    {
+        $publicVendorPath = public_path('vendor/futurisme-admin');
+        if (File::exists($publicVendorPath)) {
+            File::deleteDirectory($publicVendorPath);
+        }
+
+        $viewsVendorPath = resource_path('views/vendor/futurisme');
+        if (File::exists($viewsVendorPath)) {
+            File::deleteDirectory($viewsVendorPath);
+        }
+        
+        $altViewsVendorPath = resource_path('views/vendor/futurisme-admin');
+        if (File::exists($altViewsVendorPath)) {
+            File::deleteDirectory($altViewsVendorPath);
+        }
+
+        $configPath = config_path('fu-admin.php');
+        if (File::exists($configPath)) {
+            File::delete($configPath);
         }
     }
 
@@ -68,7 +105,7 @@ trait ManagesAssets
     private function getDirectoryHash(string $directory): string
     {
         if (!is_dir($directory)) {
-            return md5_file($directory);
+            return file_exists($directory) ? md5_file($directory) : '';
         }
 
         $files = array();

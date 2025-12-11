@@ -2,6 +2,8 @@
 
 namespace Aminuddin12\FuturismeAdmin\Console\Concerns;
 
+use Illuminate\Support\Facades\Artisan;
+
 trait ManagesDependencies
 {
     protected function ensureZiggyIsInstalled(): void
@@ -30,6 +32,34 @@ trait ManagesDependencies
                 '--tag' => 'cors',
                 '--force' => true,
             ]);
+        }
+    }
+
+    protected function clearSystemCaches(): void
+    {
+        $this->info('Clearing system caches...');
+        
+        try {
+            Artisan::call('config:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+        } catch (\Throwable $e) {
+            $this->warn('   Note: Failed to clear config/route/view cache (safely ignored).');
+        }
+
+        try {
+            Artisan::call('cache:clear');
+        } catch (\Throwable $e) {
+            if (str_contains($e->getMessage(), 'SQLSTATE[42P01]')) {
+                 $this->warn('   Note: Skipping cache:clear (database cache table not ready yet).');
+            } else {
+                 $this->warn('   Note: Failed to clear application cache: ' . $e->getMessage());
+            }
+        }
+        
+        $bootstrapCache = base_path('bootstrap/cache/config.php');
+        if (file_exists($bootstrapCache)) {
+            @unlink($bootstrapCache);
         }
     }
 

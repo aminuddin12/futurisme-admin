@@ -21,6 +21,7 @@ trait RegistersModules
             FuturismeModule::updateOrCreate(
                 ['name' => $moduleName],
                 [
+                    'plugin' => $moduleName,
                     'description' => $composer['description'] ?? 'Core admin panel package',
                     'version' => $composer['version'] ?? '1.0.2',
                     'checksum' => md5_file($composerPath),

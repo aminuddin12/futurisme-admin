@@ -5,7 +5,8 @@ namespace Aminuddin12\FuturismeAdmin\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Facades\Log;
-use Aminuddin12\FuturismeAdmin\Models\FuturismeSidebar; // Pastikan Model diimport
+use Aminuddin12\FuturismeAdmin\Models\FuturismeSidebar;
+use Illuminate\Support\Facades\Config;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -24,19 +25,15 @@ class HandleInertiaRequests extends Middleware
                 $user = $request->user('futurisme');
             }
         } catch (\Exception $e) {}
-
-        // --- LOGIKA PENGAMBILAN MENU DARI DATABASE ---
         $menus = [];
         if ($user) {
             try {
-                // Pastikan tabel ada sebelum query (untuk menghindari error saat migrasi awal)
                 if (\Illuminate\Support\Facades\Schema::hasTable('futurisme_sidebars')) {
-                    // Ambil Root Menu (parent_id IS NULL) beserta anak-anaknya
                     $menus = FuturismeSidebar::whereNull('parent_id')
                         ->with(['children' => function($query) {
-                            $query->orderBy('order', 'asc'); // Urutkan submenu
+                            $query->orderBy('order', 'asc');
                         }])
-                        ->orderBy('order', 'asc') // Urutkan root menu
+                        ->orderBy('order', 'asc') 
                         ->get();
                 }
             } catch (\Exception $e) {
@@ -49,7 +46,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
             ],
-            'menus' => $menus, // Kirim data menu ke frontend
+            'menus' => $menus,
             'config' => [
                 'url_prefix' => config('fu-admin.url_prefix', 'admin'),
                 'site_name' => config('fu-admin.site_name'),
@@ -83,6 +80,10 @@ class HandleInertiaRequests extends Middleware
                 'error'   => fn () => $request->session()->get('error'),
                 'success' => fn () => $request->session()->get('success'),
                 'status'  => fn () => $request->session()->get('status'),
+            ],
+            'app' => [
+                'name' => Config::get('fu-admin.app.name', 'Futurisme Admin'),
+                'logo' => Config::get('fu-admin.system.logo_url'),
             ],
         ]);
     }

@@ -26,11 +26,18 @@ class InstallFuturismeAdmin extends Command
         if (!$this->validateInstallationKey()) {
             return 1;
         }
+        
+        $this->clearSystemCaches();
 
         $this->ensureZiggyIsInstalled();
         $this->ensureCorsConfigExists();
 
-        $this->syncAssets();
+        try {
+            $this->syncAssets();
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
+            return 1;
+        }
 
         if (!File::exists(public_path('storage'))) {
             $this->call('storage:link');
@@ -39,6 +46,8 @@ class InstallFuturismeAdmin extends Command
         $this->syncDatabaseResources();
         
         $this->registerSelfAsModule();
+
+        $this->clearSystemCaches();
 
         $this->info('Futurisme Admin installation completed successfully.');
         
