@@ -43,6 +43,12 @@ class InstallFuturismeAdmin extends Command
             $this->call('storage:link');
         }
 
+        $this->info('Publishing Activity Log Migrations...');
+        $this->call('vendor:publish', [
+            '--provider' => "Spatie\Activitylog\ActivitylogServiceProvider",
+            '--tag' => "activitylog-migrations"
+        ]);
+
         $this->syncDatabaseResources();
         
         $this->registerSelfAsModule();

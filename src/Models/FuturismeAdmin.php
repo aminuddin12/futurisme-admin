@@ -6,11 +6,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use Aminuddin12\FuturismeAdmin\Traits\HasRoles; // Import Trait
+use Aminuddin12\FuturismeAdmin\Traits\HasRoles;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class FuturismeAdmin extends Authenticatable
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles; // Gunakan Trait
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, LogsActivity;
 
     protected $table = 'futurisme_admins';
 
@@ -44,6 +46,15 @@ class FuturismeAdmin extends Authenticatable
         'two_factor_secret' => 'encrypted',
         'two_factor_recovery_codes' => 'encrypted',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'email', 'is_active', 'is_super_admin'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('admin');
+    }
 
     public function isLocked(): bool
     {

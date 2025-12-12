@@ -120,7 +120,7 @@ class SidebarController extends FuturismeBaseController
         if (Gate::denies('manage sidebar')) abort(403);
 
         $request->validate([
-            'items' => 'required|array',
+            'items' => 'required|array', 
             'module_name' => 'required|string'
         ]);
 

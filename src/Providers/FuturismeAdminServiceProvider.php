@@ -9,7 +9,9 @@ use Aminuddin12\FuturismeAdmin\Console\Commands\RollbackFuturismeAdmin;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Event;
 use Aminuddin12\FuturismeAdmin\Models\FuturismeSetting;
+use Aminuddin12\FuturismeAdmin\Listeners\FuturismeLogSubscriber;
 use Illuminate\Routing\Router;
 
 class FuturismeAdminServiceProvider extends ServiceProvider
@@ -18,10 +20,8 @@ class FuturismeAdminServiceProvider extends ServiceProvider
     {
         $packageRoot = __DIR__.'/../../';
 
-        // Load Routes
         $this->loadRoutesFrom($packageRoot.'routes/web.php');
         
-        // Defensive Load: Hanya load assets.php jika file ada
         if (file_exists($packageRoot.'routes/assets.php')) {
             $this->loadRoutesFrom($packageRoot.'routes/assets.php'); 
         }
@@ -31,6 +31,8 @@ class FuturismeAdminServiceProvider extends ServiceProvider
 
         $this->configureAuth();
         $this->configureGates();
+        
+        Event::subscribe(FuturismeLogSubscriber::class);
 
         $router = $this->app->make(Router::class);
         $router->aliasMiddleware('futurisme.auth', \Aminuddin12\FuturismeAdmin\Http\Middleware\Authenticate::class);
@@ -51,9 +53,6 @@ class FuturismeAdminServiceProvider extends ServiceProvider
         $this->configureDynamicSettings();
     }
 
-    /**
-     * Konfigurasi Gate Authorization
-     */
     protected function configureGates()
     {
         Gate::before(function ($user, $ability) {

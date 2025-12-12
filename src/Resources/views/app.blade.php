@@ -14,10 +14,8 @@
         
         @php
             $buildDir = 'vendor/futurisme-admin';
-            
             $hotPath = public_path($buildDir . '/hot');
             $isHot = file_exists($hotPath);
-
             $manifest = null;
             
             if (!$isHot) {
@@ -35,42 +33,31 @@
 
         @if ($isHot)
             @vite(['src/Resources/css/app.css', 'src/Resources/js/app.tsx'], $buildDir)
-        
         @elseif ($manifest)
             @php
                 $asset = fn($path) => asset($buildDir . '/' . $path);
-                
+                $cssKey = 'src/Resources/css/app.css';
                 $jsKey = 'src/Resources/js/app.tsx';
+                $cssFile = $manifest[$cssKey]['file'] ?? null;
                 $jsFile = $manifest[$jsKey]['file'] ?? null;
-
-                $allCssFiles = [];
-                foreach ($manifest as $key => $item) {
-                    if (isset($item['file']) && str_ends_with($item['file'], '.css')) {
-                        $allCssFiles[] = $item['file'];
-                    }
-                    // Cek juga properti 'css' array di dalam item JS
-                    if (isset($item['css']) && is_array($item['css'])) {
-                        foreach ($item['css'] as $cssImport) {
-                            $allCssFiles[] = $cssImport;
-                        }
-                    }
-                }
-                // Hapus duplikat
-                $allCssFiles = array_unique($allCssFiles);
+                $cssImports = $manifest[$jsKey]['css'] ?? [];
             @endphp
 
-            @foreach ($allCssFiles as $cssFile)
+            @if ($cssFile)
                 <link rel="stylesheet" href="{{ $asset($cssFile) }}" />
+            @endif
+
+            @foreach ($cssImports as $import)
+                <link rel="stylesheet" href="{{ $asset($import) }}" />
             @endforeach
 
             @if ($jsFile)
                 <script type="module" src="{{ $asset($jsFile) }}"></script>
             @endif
-
         @else
             <style>
                 body { display: flex; align-items: center; justify-content: center; height: 100vh; background: #f3f4f6; font-family: sans-serif; }
-                .error-box { background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 28rem; text-align: center; }
+                .error-box { background: white; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
                 .text-red { color: #dc2626; font-weight: bold; margin-bottom: 0.5rem; }
             </style>
             <div class="error-box">
@@ -80,6 +67,27 @@
         @endif
         
         @inertiaHead
+
+        @if(Route::has('futurisme.tracker.store'))
+        <script>
+            (function() {
+                function track() {
+                    if (navigator.sendBeacon) {
+                        const data = new FormData();
+                        data.append('url', window.location.href);
+                        data.append('referrer', document.referrer);
+                        data.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+                        
+                        data.append('cookies[enabled]', navigator.cookieEnabled);
+                        data.append('cookies[timezone]', Intl.DateTimeFormat().resolvedOptions().timeZone);
+                        data.append('cookies[screen]', window.screen.width + 'x' + window.screen.height);
+                        navigator.sendBeacon('{{ route("futurisme.tracker.store") }}', data);
+                    }
+                }
+                window.addEventListener('load', track);
+            })();
+        </script>
+        @endif
     </head>
     <body class="font-sans antialiased h-full">
         @if ($isHot || $manifest)

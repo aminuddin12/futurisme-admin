@@ -43,6 +43,12 @@ class UpdateFuturismeAdmin extends Command
             database_path('migrations'), 
             __DIR__.'/../../Database/Migrations'
         );
+
+        $this->info('Publishing Activity Log Migrations...');
+        $this->call('vendor:publish', [
+            '--provider' => "Spatie\Activitylog\ActivitylogServiceProvider",
+            '--tag' => "activitylog-migrations"
+        ]);
         
         $this->info('Running Migrations...');
         $this->call('migrate');

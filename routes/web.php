@@ -9,12 +9,16 @@ use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\DashboardController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\RoleController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SettingsController;
 use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SidebarController;
+use Aminuddin12\FuturismeAdmin\Http\Controllers\Admin\SystemLogController;
+use Aminuddin12\FuturismeAdmin\Http\Controllers\FuturismeTrackerController;
 use Aminuddin12\FuturismeAdmin\Http\Middleware\HandleInertiaRequests;
 use Inertia\Inertia;
 
 $adminPrefix = config('fu-admin.admin_url_prefix', 'admin');
 
+
 Route::middleware(['web', HandleInertiaRequests::class])->group(function () use ($adminPrefix) {
+    Route::post('/futurisme/track', [FuturismeTrackerController::class, 'store'])->name('futurisme.tracker.store');
 
     Route::middleware(['web', 'futurisme.setup_check'])->group(function () {
         Route::get('/fu-settings', [SetupController::class, 'viewConfig'])->name('futurisme.setup.config');
@@ -55,6 +59,9 @@ Route::middleware(['web', HandleInertiaRequests::class])->group(function () use 
             Route::put('/sidebar/{id}', [SidebarController::class, 'update'])->name('futurisme.sidebar.update');
             Route::delete('/sidebar/{id}', [SidebarController::class, 'destroy'])->name('futurisme.sidebar.destroy');
             Route::post('/sidebar/reorder', [SidebarController::class, 'reorder'])->name('futurisme.sidebar.reorder');
+
+            Route::get('/system-logs', [SystemLogController::class, 'index'])->name('futurisme.logs.index');
+            Route::delete('/system-logs/clear', [SystemLogController::class, 'destroy'])->name('futurisme.logs.clear');
         });
     });
 });
