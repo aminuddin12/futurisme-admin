@@ -33,7 +33,7 @@ export default function AuthenticatedLayout({ header, children }: AuthenticatedP
             <div 
                 className={`
                     flex flex-col min-h-screen transition-all duration-300 ease-in-out
-                    ${isSidebarCollapsed ? 'lg:ml-[80px]' : 'lg:ml-[280px]'}
+                    ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-[280px]'}
                 `}
             >
                 <Header 
@@ -42,7 +42,7 @@ export default function AuthenticatedLayout({ header, children }: AuthenticatedP
                         window.dispatchEvent(new CustomEvent('open-mobile-sidebar'));
                     }} 
                 />
-                <main className="flex-1 p-6">
+                <main className="flex-1 px-4 p-4 mt-4">
                     {children}
                 </main>
                 <footer className="px-6 py-4 text-center text-xs text-gray-400 dark:text-gray-600">
